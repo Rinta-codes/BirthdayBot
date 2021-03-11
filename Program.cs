@@ -9,17 +9,24 @@ using Microsoft.Extensions.Configuration.Json;
 
 namespace BirthdayBot
 {
-    class Program
+    class BirthdayBot
     {
         private readonly DiscordSocketClient _client;
         private readonly IConfiguration _config;
 
-        static void Main(string[] args)
+        static async Task Main(string[] args) // I heard new C# supports async Main method... 
         {
-            new Program().MainAsync().GetAwaiter().GetResult();
+            BirthdayBot bbot = new BirthdayBot();
+
+            //This is where we get the Token value from the configuration file
+            await bbot._client.LoginAsync(TokenType.Bot, bbot._config["Token"]);
+            await bbot._client.StartAsync();
+
+            // Block the program until it is closed.
+            await Task.Delay(-1);
         }
 
-        public Program()
+        public BirthdayBot()
         {
             _client = new DiscordSocketClient();
 
@@ -37,16 +44,6 @@ namespace BirthdayBot
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile(path: "config.json");
             _config = _builder.Build();
-        }
-
-        public async Task MainAsync()
-        {
-            //This is where we get the Token value from the configuration file
-            await _client.LoginAsync(TokenType.Bot, _config["Token"]);
-            await _client.StartAsync();
-
-            // Block the program until it is closed.
-            await Task.Delay(-1);
         }
 
         private Task LogAsync(LogMessage log)
