@@ -269,6 +269,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="bin\Debug\config.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
     <Compile Include="config.Designer.cs">
       <DependentUpon>config.json</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -276,6 +280,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CommandHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
