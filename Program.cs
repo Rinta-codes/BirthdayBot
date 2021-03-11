@@ -57,7 +57,7 @@ namespace BirthdayBot
 
         private Task ReadyAsync()
         {
-            Console.WriteLine($"Connected as -> [] :)");
+            Console.WriteLine($"Connected...");
             return Task.CompletedTask;
         }
 
@@ -68,9 +68,9 @@ namespace BirthdayBot
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
-            if (message.Content == ".hello")
+            if (message.Content == "beep")
             {
-                await message.Channel.SendMessageAsync("world!");
+                await message.Channel.SendMessageAsync("boop");
             }
         }
     }
