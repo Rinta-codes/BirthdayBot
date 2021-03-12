@@ -16,13 +16,17 @@ namespace BirthdayBot
 
         static async Task Main(string[] args) // I heard new C# supports async Main method... 
         {
+            // Start up the bot process
             BirthdayBot bbot = new BirthdayBot();
 
-            //This is where we get the Token value from the configuration file
+            // Get the Token value from the configuration file and use it to login (but not go online)
             await bbot._client.LoginAsync(TokenType.Bot, bbot._config["Token"]);
+
+            // Start up the connection (go online)
+            // Will immediately return after being called, initialising the connection on another thread
             await bbot._client.StartAsync();
 
-            // Block the program until it is closed.
+            // Block the program until it is closed, so that Bot keeps running after connecting (seems rather crude)
             await Task.Delay(-1);
         }
 
@@ -30,16 +34,16 @@ namespace BirthdayBot
         {
             _client = new DiscordSocketClient();
 
-            //Hook into log event and write it out to the console
+            // Hook into log event and write it out to the console
             _client.Log += LogAsync;
 
-            //Hook into the client ready event
+            // Hook into the client ready event
             _client.Ready += ReadyAsync;
 
-            //Hook into the message received event, this is how we handle the hello world example
+            // Hook into the message received event, this is how we handle the hello world example
             _client.MessageReceived += MessageReceivedAsync;
 
-            //Create the configuration
+            // Load configuration from config file into a variable
             var _builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile(path: "config.json");
@@ -58,10 +62,10 @@ namespace BirthdayBot
             return Task.CompletedTask;
         }
 
-        //I wonder if there's a better way to handle commands (spoiler: there is :))
+        // Directly hook into Messages event
         private async Task MessageReceivedAsync(SocketMessage message)
         {
-            //This ensures we don't loop things by responding to ourselves (as the bot)
+            //This ensures we don't loop things by responding to ourselves
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
