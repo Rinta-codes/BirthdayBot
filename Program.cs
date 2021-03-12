@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Discord;
 using Discord.Net;
 using Discord.Commands;
@@ -14,7 +16,7 @@ namespace BirthdayBot
         private readonly DiscordSocketClient _client;
         private readonly IConfiguration _config;
 
-        static async Task Main(string[] args) // I heard new C# supports async Main method... 
+        static async Task Main(string[] args) // I heard modern C# supports async Main method... 
         {
             // Start up the bot process
             BirthdayBot bbot = new BirthdayBot();
@@ -65,13 +67,25 @@ namespace BirthdayBot
         // Directly hook into Messages event
         private async Task MessageReceivedAsync(SocketMessage message)
         {
-            //This ensures we don't loop things by responding to ourselves
+            // This ensures we don't loop things by responding to ourselves
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
+            // This is a basic command
             if (message.Content == "beep")
             {
                 await message.Channel.SendMessageAsync("boop");
+            }
+
+            // This command assigns role "Birthday Cake" to user who executed it
+            if (message.Content == "poke")
+            {
+                SocketGuildUser author = message.Author as SocketGuildUser;
+                if (author != null)
+                    // await author.AddRoleAsync(author.Guild.GetRole(819999599460483102));
+                    await author.AddRoleAsync((from sp_role in author.Guild.Roles
+                                               where sp_role.Name == "Birthday Cake"
+                                               select sp_role).ElementAt<IRole>(0));
             }
         }
     }
