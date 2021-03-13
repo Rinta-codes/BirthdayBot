@@ -71,7 +71,7 @@ namespace BirthdayBot
             if (message.Author.Id == _client.CurrentUser.Id)
                 return;
 
-            // This is a basic command
+            // This is a basic hardcoded response to a hardcoded message
             if (message.Content == "beep")
             {
                 await message.Channel.SendMessageAsync("boop");
@@ -81,11 +81,12 @@ namespace BirthdayBot
             if (message.Content == "poke")
             {
                 SocketGuildUser author = message.Author as SocketGuildUser;
-                if (author != null)
+                if (author != null) // If message was not from a user in a server -- author will be null
+                    // Assignment by hardcoded Role ID from test server
                     // await author.AddRoleAsync(author.Guild.GetRole(819999599460483102));
-                    await author.AddRoleAsync((from sp_role in author.Guild.Roles
-                                               where sp_role.Name == "Birthday Cake"
-                                               select sp_role).ElementAt<IRole>(0));
+                    
+                    // Assignment by hardcoded Role Name
+                    await author.AddRoleAsync(author.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
             }
         }
     }
