@@ -1,69 +1,75 @@
-﻿using System;
+﻿// .NET Base
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Extensions.DependencyInjection;
+// Discord
 using Discord;
 using Discord.Net;
 using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
+// Internal
+using BirthdayBot.Services;
 
 namespace BirthdayBot
 {
     class BirthdayBot
     {
-        private readonly DiscordSocketClient _client;
-        private readonly IConfiguration _config;
-
-        static async Task Main(string[] args) // I heard modern C# supports async Main method... 
+        static async Task Main()
         {
-            // Start up the bot process
-            BirthdayBot bbot = new BirthdayBot();
+            // Call ConfigureServices to create the ServiceCollection/Provider for passing around the services
+            using (var services = BirthdayBot.ConfigureServices())
+            {
+                // Temporary variables for client and config
+                // Makes for neat code and useful if we need to access them few times
+                var client = services.GetRequiredService<DiscordSocketClient>();
+                var config = services.GetRequiredService<IConfiguration>();
 
-            // Get the Token value from the configuration file and use it to login (but not go online)
-            await bbot._client.LoginAsync(TokenType.Bot, bbot._config["Token"]);
+                // Hook into log events for client and commands and write it out to the console
+                client.Log += BirthdayBot.LogAsync;
+                services.GetRequiredService<CommandService>().Log += LogAsync;
 
-            // Start up the connection (go online)
-            // Will immediately return after being called, initialising the connection on another thread
-            await bbot._client.StartAsync();
+                // Hook into the client ready event
+                client.Ready += BirthdayBot.ReadyAsync;
+                
+                // Get the Token value from the configuration file
+                await client.LoginAsync(TokenType.Bot, config["Token"]);
 
-            // Block the program until it is closed, so that Bot keeps running after connecting (seems rather crude)
-            await Task.Delay(-1);
+                // Start up the connection
+                // Will immediately return after being called, initialising the connection on another thread
+                await client.StartAsync();
+
+                // Start up CommandHandler service
+                await services.GetRequiredService<CommandHandler>().InitializeAsync();
+
+                // Block the program until it is closed, so that Bot keeps running after connecting
+                await Task.Delay(-1);
+            }
         }
 
-        public BirthdayBot()
+        // Load configuration from a file
+        private static IConfiguration GetConfig()
         {
-            _client = new DiscordSocketClient();
-
-            // Hook into log event and write it out to the console
-            _client.Log += LogAsync;
-
-            // Hook into the client ready event
-            _client.Ready += ReadyAsync;
-
-            // Hook into the message received event, this is how we handle the hello world example
-            _client.MessageReceived += MessageReceivedAsync;
-
-            // Load configuration from config file into a variable
-            var _builder = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(path: "config.json");
-            _config = _builder.Build();
+            return new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile(path: "config.json").Build();
         }
 
-        private Task LogAsync(LogMessage log)
+        private static Task LogAsync(LogMessage log)
         {
             Console.WriteLine(log.ToString());
             return Task.CompletedTask;
         }
 
-        private Task ReadyAsync()
+        private static Task ReadyAsync()
         {
             Console.WriteLine($"Connected...");
             return Task.CompletedTask;
         }
 
+        /* OLD MESSAGE HANDLING CODE
+         
         // Directly hook into Messages event
         private async Task MessageReceivedAsync(SocketMessage message)
         {
@@ -88,6 +94,18 @@ namespace BirthdayBot
                     // Assignment by hardcoded Role Name
                     await author.AddRoleAsync(author.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
             }
+        }
+
+        */
+
+        private static ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                .AddSingleton(BirthdayBot.GetConfig())
+                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<CommandService>()
+                .AddSingleton<CommandHandler>()
+                .BuildServiceProvider();
         }
     }
 }
