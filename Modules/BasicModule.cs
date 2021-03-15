@@ -14,5 +14,9 @@ namespace BirthdayBot.BasicModule
         [Alias("boop")]
         public Task PingAsync()
             => ReplyAsync("boop");
-        }
+
+        [Command("good bot")]
+        public Task GoodBotAsync()
+            => ReplyAsync("thank you");
+    }
 }

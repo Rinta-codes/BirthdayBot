@@ -63,28 +63,21 @@ namespace BirthdayBot.Services
             var argPos = 0;
 
             // Gets prefix from the configuration file
-            // Accounts for possibility of null or multicharacter prefix -> will not be applied
-            try
-            {
-                char prefix = Char.Parse(_config["Prefix"]);
+            // Accepts empty prefix
+            string prefix = _config["Prefix"];
 
-                // Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly; exits if neither is true
-                if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos) || !message.HasCharPrefix(prefix, ref argPos))
-                {
-                    return;
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is FormatException)
-                    Console.WriteLine("Warning: Multi-character prefix was specified in configuration - Prefix is disregarded!");
+            // Add code here to execute on specific messages before sending to Command Handler?
 
-                // Determines if the message starts with @mention of the Bot
-                if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos))
-                {
-                    return;
-                }
+            // Checks if prefix is Null or Empty before proceeding with other checks
+            // Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly; exits if neither is true
+            if (String.IsNullOrEmpty(prefix))
+            {
+                // Console.WriteLine("Warning: Prefix is Null or Empty, all incoming messages are being parsed by Command Handler!");
             }
+            else if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos) || !message.HasStringPrefix(prefix, ref argPos))
+            {
+                return;
+            }            
             
             // If we are still here - creates context of the received message
             var context = new SocketCommandContext(_client, message);
