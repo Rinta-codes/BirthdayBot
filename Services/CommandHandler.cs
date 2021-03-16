@@ -10,6 +10,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 // Internal
 using BirthdayBot.BasicModule;
+using BirthdayBot.TypeReaders;
 
 
 namespace BirthdayBot.Services
@@ -38,64 +39,60 @@ namespace BirthdayBot.Services
             _client.MessageReceived += MessageReceivedAsync;
         }
 
-        public async Task InitializeAsync() // Commands are modular (i.e. plugins) and this method loads them up
+        public async Task InitializeAsync()
         {
-            // Registers modules that are public and inherit ModuleBase<T>
+            // Add TypeReaders to pass non-default arguments to the commands
+            _commands.AddTypeReader<IConfiguration>(new ConfigurationTypeReader());
+
+            // Registers commands: all modules that are public and inherit ModuleBase<T>
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
         // Takes actions upon receiving messages
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
-            // Ensures we don't process system messages / messages from other bots received via WebSocket
-            if (!(rawMessage is SocketUserMessage message))
-            {
-                return;
-            }
+            // Ensures we don't process system messages / messages from other bots
+            if (!(rawMessage is SocketUserMessage message)) return;
 
-            // Ensures we don't process system messages / messages from other bots received via other means
-            if (message.Source != MessageSource.User)
-            {
-                return;
-            }
+            // Additional check that the message is not system / bot / webhook
+            if (message.Source != MessageSource.User) return;
 
-            // Sets the argument position away from the prefix we set
+            // Initial value for prefix offset
             var argPos = 0;
 
             // Gets prefix from the configuration file
             // Accepts empty prefix
             string prefix = _config["Prefix"];
 
-            // Add code here to execute on specific messages before sending to Command Handler?
-
-            // Checks if prefix is Null or Empty before proceeding with other checks
-            // Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly; exits if neither is true
-            if (String.IsNullOrEmpty(prefix))
-            {
-                // Console.WriteLine("Warning: Prefix is Null or Empty, all incoming messages are being parsed by Command Handler!");
-            }
-            else if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos) || !message.HasStringPrefix(prefix, ref argPos))
-            {
-                return;
-            }            
-            
-            // If we are still here - creates context of the received message
+            // Creates context of the received message
             var context = new SocketCommandContext(_client, message);
 
-            // Executes command if one is found that matches message context
-            // If multiple commands are found - Exception will be thrown; This behavior can be changed via adding another argument to the method call
-            // Presumably Exceptions are handled in CommandHandler.CommandExecutedAsync
-            await _commands.ExecuteAsync(context, argPos, _services);
+            // Accept comands both with and without prefix, prioritising prefixed
+            // Checks if prefix is Null or Empty
+            // -> If YES - ExecuteAsync (Executes command if one is found that matches message context)
+            // -> If NO - Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly
+            //      -> If YES - ExecuteAsync
+            //      -> If NO - ExecuteAsync on argPos 0
+            if (String.IsNullOrEmpty(prefix))
+                await _commands.ExecuteAsync(context, argPos, _services);
+            else if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos) || !message.HasStringPrefix(prefix, ref argPos))
+                await _commands.ExecuteAsync(context, argPos, _services);
+            else
+            {
+                argPos = 0;
+                await _commands.ExecuteAsync(context, argPos, _services);
+            }
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // If a command isn't found, log that info to console and exit this method
-            if (!command.IsSpecified)
+            if (!result.IsSuccess || !command.IsSpecified) // && !String.IsNullOrEmpty(_config["Prefix"]))
             {
                 System.Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
                 return;
             }
+
 
             // Log success to the console and exit this method
             if (result.IsSuccess)
