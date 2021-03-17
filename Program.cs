@@ -11,6 +11,7 @@ using Discord;
 using Discord.Net;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Rest;
 // Internal
 using BirthdayBot.Services;
 
@@ -26,22 +27,26 @@ namespace BirthdayBot
                 // Temporary variables for client and config
                 // Makes for neat code and useful if we need to access them few times
                 var client = services.GetRequiredService<DiscordSocketClient>();
+                var restClient = services.GetRequiredService<DiscordRestClient>();
                 var config = services.GetRequiredService<IConfiguration>();
 
                 // Hook into log events for client and commands and write it out to the console
-                client.Log += BirthdayBot.LogAsync;
-                services.GetRequiredService<CommandService>().Log += LogAsync;
+                client.Log += (LogMessage log) => BirthdayBot.LogAsync(log, "[WebSocket]");
+                restClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, "[REST]");
+                services.GetRequiredService<CommandService>().Log += (LogMessage log) => BirthdayBot.LogAsync(log, "[CommandService]");
 
                 // Hook into the client ready event
-                client.Ready += BirthdayBot.ReadyAsync;
-                
+                client.Ready += () => BirthdayBot.ReadyAsync("[WebSocket]");
+                restClient.LoggedIn += () => BirthdayBot.ReadyAsync("[REST]");
+
                 // Get the Token value from the configuration file
                 await client.LoginAsync(TokenType.Bot, config["Token"]);
+                await restClient.LoginAsync(TokenType.Bot, config["Token"]);
 
                 // Start up the connection
                 // Will immediately return after being called, initialising the connection on another thread
                 await client.StartAsync();
-
+                
                 // Start up CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
@@ -56,47 +61,17 @@ namespace BirthdayBot
             return new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile(path: "config.json").Build();
         }
 
-        private static Task LogAsync(LogMessage log)
+        private static Task LogAsync(LogMessage log, string prefix)
         {
-            Console.WriteLine(log.ToString());
+            Console.WriteLine("{0} {1}", prefix, log.ToString());
             return Task.CompletedTask;
         }
 
-        private static Task ReadyAsync()
+        private static Task ReadyAsync(string prefix)
         {
-            Console.WriteLine($"Connected...");
+            Console.WriteLine("{0} Connected...", prefix);
             return Task.CompletedTask;
         }
-
-        /* OLD MESSAGE HANDLING CODE
-         
-        // Directly hook into Messages event
-        private async Task MessageReceivedAsync(SocketMessage message)
-        {
-            // This ensures we don't loop things by responding to ourselves
-            if (message.Author.Id == _client.CurrentUser.Id)
-                return;
-
-            // This is a basic hardcoded response to a hardcoded message
-            if (message.Content == "beep")
-            {
-                await message.Channel.SendMessageAsync("boop");
-            }
-
-            // This command assigns role "Birthday Cake" to user who executed it
-            if (message.Content == "poke")
-            {
-                SocketGuildUser author = message.Author as SocketGuildUser;
-                if (author != null) // If message was not from a user in a server -- author will be null
-                    // Assignment by hardcoded Role ID from test server
-                    // await author.AddRoleAsync(author.Guild.GetRole(819999599460483102));
-                    
-                    // Assignment by hardcoded Role Name
-                    await author.AddRoleAsync(author.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
-            }
-        }
-
-        */
 
         private static ServiceProvider ConfigureServices()
         {
@@ -105,6 +80,8 @@ namespace BirthdayBot
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<DiscordSocketConfig>()
+                .AddSingleton<DiscordRestClient>()
                 .BuildServiceProvider();
         }
     }
