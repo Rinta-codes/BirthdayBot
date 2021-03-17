@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Rest;
 // Internal
 using BirthdayBot.BasicModule;
 using BirthdayBot.TypeReaders;
@@ -22,6 +23,8 @@ namespace BirthdayBot.Services
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
+        private readonly DiscordSocketConfig _clientConfig;
+        private readonly DiscordRestClient _restClient;
 
         public CommandHandler(IServiceProvider services) // This constructor accepts its dependency as an input, which is a type of Dependency Injection
         {
@@ -30,6 +33,8 @@ namespace BirthdayBot.Services
             _config = services.GetRequiredService<IConfiguration>();
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _clientConfig = services.GetRequiredService<DiscordSocketConfig>();
+            _restClient = services.GetRequiredService<DiscordRestClient>();
             _services = services;
 
             // Take action when we execute a command
@@ -42,7 +47,21 @@ namespace BirthdayBot.Services
         public async Task InitializeAsync()
         {
             // Add TypeReaders to pass non-default arguments to the commands
-            _commands.AddTypeReader<IConfiguration>(new ConfigurationTypeReader());
+            // Should implement this outside of CommandHandler unless there's a way to bulk load them like modules
+            // _commands.AddTypeReader<IGuildUser>(new GuildUserTypeReader());
+            // _commands.AddTypeReader<int>(new TestTypeReader());
+
+            // Confirm added TypeReaders
+            //foreach (var x in _commands.TypeReaders)
+            //{
+            //    Console.WriteLine("[Typereaders] {0}", x.Key);
+            //    foreach (TypeReader y in x) 
+            //        Console.WriteLine("[Typereaders]   {0}", y);
+            //}
+
+            // Potentially reduntant; Experimenting with GuildUser retrieval
+            _clientConfig.AlwaysDownloadUsers = true;
+            Console.WriteLine(_clientConfig.GatewayIntents.GetValueOrDefault().ToString());
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
@@ -75,7 +94,7 @@ namespace BirthdayBot.Services
             //      -> If NO - ExecuteAsync on argPos 0
             if (String.IsNullOrEmpty(prefix))
                 await _commands.ExecuteAsync(context, argPos, _services);
-            else if (!message.HasMentionPrefix(_client.CurrentUser, ref argPos) || !message.HasStringPrefix(prefix, ref argPos))
+            else if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(prefix, ref argPos))
                 await _commands.ExecuteAsync(context, argPos, _services);
             else
             {
@@ -87,7 +106,7 @@ namespace BirthdayBot.Services
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // If a command isn't found, log that info to console and exit this method
-            if (!result.IsSuccess || !command.IsSpecified) // && !String.IsNullOrEmpty(_config["Prefix"]))
+            if (!command.IsSpecified) // && !String.IsNullOrEmpty(_config["Prefix"]))
             {
                 System.Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
                 return;
@@ -101,7 +120,7 @@ namespace BirthdayBot.Services
                 return;
             }
 
-            // Failure scenario, let the user know
+            // Remaining scenarios assume Failure; let the user know
             await context.Channel.SendMessageAsync($"Command [{command.Value.Name}] failed for {context.User.Username}, context: [{result}]!");
         }
     }
