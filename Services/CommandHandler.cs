@@ -24,7 +24,7 @@ namespace BirthdayBot.Services
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         private readonly DiscordSocketConfig _clientConfig;
-        private readonly DiscordRestClient _restClient;
+        // private readonly DiscordRestClient _restClient; // Not needed
 
         public CommandHandler(IServiceProvider services) // This constructor accepts its dependency as an input, which is a type of Dependency Injection
         {
@@ -34,7 +34,7 @@ namespace BirthdayBot.Services
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _clientConfig = services.GetRequiredService<DiscordSocketConfig>();
-            _restClient = services.GetRequiredService<DiscordRestClient>();
+            // _restClient = services.GetRequiredService<DiscordRestClient>(); // Not needed
             _services = services;
 
             // Take action when we execute a command

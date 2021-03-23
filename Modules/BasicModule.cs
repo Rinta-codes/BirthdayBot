@@ -19,10 +19,12 @@ namespace BirthdayBot.BasicModule
     {
         private readonly IConfiguration _config;
         private readonly DiscordRestClient _clientRest;
-        public BasicModule(IConfiguration config, DiscordRestClient clientRest)
+        private readonly RestService _myRest;
+        public BasicModule(IConfiguration config, DiscordRestClient clientRest, RestService myRest)
         {
             _config = config;
             _clientRest = clientRest;
+            _myRest = myRest;
         }
 
         [Command("test")]
@@ -40,15 +42,36 @@ namespace BirthdayBot.BasicModule
         [Command("birthdayme")] // Assign hardcoded role to command caller
         public async Task AssignBirthdayAsync()
         {
-            // Resolve<BusSettings>()
             await (Context.User as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
         }
 
+        // Current implementation using direct REST call to Discord API circumventing Discord.Net library
         [Command("birthday")] // Assign role to @mentioned user by Role Name from configuration
+        public async Task AssignBirthday3Async(string irrelevant)
+        {
+            var roleName = _config["Role Name"];
+
+            string userId = Context.Message.MentionedUsers.First().Id.ToString();
+            string guildId = Context.Guild.Id.ToString();
+            string roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
+
+            await _myRest.PutAsync("/guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
+        }
+
+        // Old implementation relying on Discord.Net library functionality dependent on Presence Intent, will not work most of the times
+        [Command("birthday_deprecated")] // Assign role to @mentioned user by Role Name from configuration
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
             var roleName = _config["Role Name"];
             await user.AddRoleAsync(user.Guild.Roles.First(sp_role => sp_role.Name == roleName));
+        }
+
+        // Old implementation relying on Discord.Net library functionality dependent on Presence Intent, will not work most of the times
+        [Command("birthday2_deprecated")] // Assign role to @mentioned user by Role Name from configuration
+        public async Task AssignBirthday2Async(SocketUser user)
+        {
+            var roleName = _config["Role Name"];
+            await (user as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == roleName));
         }
 
         [Command("guildusers")] // Retrieve a full list of server users
