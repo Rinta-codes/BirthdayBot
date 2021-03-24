@@ -7,14 +7,14 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BirthdayBot.BasicModule
+namespace BirthdayBot.Modules
 {
-    public class BasicModule : ModuleBase<SocketCommandContext>
+    public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
         private readonly IConfiguration _config;
         private readonly DiscordRestClient _clientRest;
         private readonly RestService _myRest;
-        public BasicModule(IConfiguration config, DiscordRestClient clientRest, RestService myRest)
+        public BirthdayModule(IConfiguration config, DiscordRestClient clientRest, RestService myRest)
         {
             _config = config;
             _clientRest = clientRest;
