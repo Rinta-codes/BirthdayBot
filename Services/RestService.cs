@@ -1,9 +1,7 @@
-﻿using System;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace BirthdayBot.Services
 {
@@ -28,16 +26,16 @@ namespace BirthdayBot.Services
             // _client.DefaultRequestHeaders.Add("Content-Type", "application/json");
         }
 
-        public async Task PutAsync(string requestString,  HttpContent content)
+        public async Task PutAsync(string requestString, HttpContent content)
         {
             try
             {
                 var response = await _client.PutAsync(_uriBase + requestString, content);
-                Console.WriteLine("[{0} {1}]", this.GetType(), response.Content.ToString());
+                if (!(response is null)) Console.WriteLine("[{0} {1}]", this.GetType().Assembly, response.Content.ToString());
             }
             catch (Exception e)
             {
-                Console.WriteLine("[{0} {1}]", this.GetType(), e.Message);
+                Console.WriteLine("[{0} {1}]", this.GetType().Assembly, e.Message);
             }
         }
     }

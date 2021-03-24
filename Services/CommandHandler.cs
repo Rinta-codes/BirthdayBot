@@ -1,18 +1,11 @@
-﻿// .NET Base
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-// Discord
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Discord.Rest;
-// Internal
-using BirthdayBot.BasicModule;
-using BirthdayBot.TypeReaders;
-
 
 namespace BirthdayBot.Services
 {
@@ -60,8 +53,8 @@ namespace BirthdayBot.Services
             //}
 
             // Potentially reduntant; Experimenting with GuildUser retrieval
-            _clientConfig.AlwaysDownloadUsers = true;
-            Console.WriteLine(_clientConfig.GatewayIntents.GetValueOrDefault().ToString());
+            // _clientConfig.AlwaysDownloadUsers = true;
+            // Console.WriteLine(_clientConfig.GatewayIntents.GetValueOrDefault().ToString());
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
@@ -86,7 +79,7 @@ namespace BirthdayBot.Services
             // Creates context of the received message
             var context = new SocketCommandContext(_client, message);
 
-            // Accept comands both with and without prefix, prioritising prefixed
+            // Accept commands both with and without prefix, prioritising prefixed
             // Checks if prefix is Null or Empty
             // -> If YES - ExecuteAsync (Executes command if one is found that matches message context)
             // -> If NO - Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly
