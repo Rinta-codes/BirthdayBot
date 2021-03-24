@@ -1,23 +1,14 @@
-﻿// .NET Base
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-// Discord
+﻿using BirthdayBot.Services;
 using Discord;
-using Discord.Net;
 using Discord.Commands;
-using Discord.WebSocket;
 using Discord.Rest;
-// Internal
-using BirthdayBot.Services;
+using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
-
-// Initialises the Bot, connects it to Discord, and handles it over to Command Handler service 
+// Initialises the Bot, connects it to Discord, and hands it over to Command Handler service 
 namespace BirthdayBot
 {
     class BirthdayBot
@@ -57,7 +48,7 @@ namespace BirthdayBot
                 // Start up the WebSocket connection
                 // Will immediately return after being called, initialising the connection on another thread
                 await client.StartAsync();
-                
+
                 // Start up CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
@@ -95,7 +86,7 @@ namespace BirthdayBot
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<DiscordRestClient>()
- //               .AddHttpClient()
+                //               .AddHttpClient()
                 .AddSingleton<RestService>()
                 .BuildServiceProvider();
         }

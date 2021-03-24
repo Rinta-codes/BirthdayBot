@@ -1,17 +1,11 @@
-﻿// .NET Base
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-// Discord
+﻿using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Discord.Rest;
-// Internal
-using BirthdayBot.Services;
+using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BirthdayBot.BasicModule
 {

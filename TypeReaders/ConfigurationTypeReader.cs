@@ -1,13 +1,6 @@
-﻿// .NET Base
+﻿using Discord.Commands;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-// Discord
-using Discord;
-using Discord.WebSocket;
-using Discord.Rest;
-using Discord.Commands;
 
 namespace BirthdayBot.TypeReaders
 {
