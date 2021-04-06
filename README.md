@@ -40,9 +40,9 @@ Token - Bot's Token
 Prefix - command prefix, can be empty or a string  
 
 Role Name - name of the birthday role  
-Birthdays - an array of user birthdays the bot checks against
-    Id - User Id
-    Date - Birthday date in DD MMM format (for example, "05 Apr")
+Birthdays - an array of user birthdays the bot checks against  
+    Id - User Id  
+    Date - Birthday date in DD MMM format (for example, "05 Apr")  
 
 **Log**
 
