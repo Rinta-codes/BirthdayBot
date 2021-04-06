@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using BirthdayBot.TypeReaders;
 
 namespace BirthdayBot.Modules
 {
@@ -22,26 +23,36 @@ namespace BirthdayBot.Modules
         }
 
         [Command("test")]
+        [Summary("Test command for int TypeReader override.")]
+        [RequireOwner]
         public async Task TestAsync(int x) => await ReplyAsync(x.ToString());
 
-        [Command("beep")] // simple interaction
+        [Command("beep")]
         [Alias("boop")]
+        [Summary("Simple interaction to test that the Bot is up.")]
         public async Task PingAsync()
             => await ReplyAsync("boop");
 
-        [Command("good bot")] // be polite to your bot
+        [Command("good bot")]
+        [Summary("Be polite to your Bot.")]
         public async Task GoodBotAsync()
             => await ReplyAsync("thank you");
 
-        [Command("birthdayme")] // Assign hardcoded role to command caller
+        [Command("birthdayme")]
+        [Summary("Assign \"Birthday Cake\" role to command caller.")]
         public async Task AssignBirthdayAsync()
         {
             await (Context.User as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
         }
 
-        // Current implementation using direct REST call to Discord API circumventing Discord.Net library
-        [Command("birthday")] // Assign role to @mentioned user by Role Name from configuration
-        public async Task AssignBirthday3Async(string irrelevant)
+        /**
+         * Current implementation is using direct REST call to Discord API circumventing Discord.Net library
+         */
+        [Command("birthday")]
+        [Summary("Assign configured birthday role to @mentioned user.")]
+        public async Task AssignBirthdayAsync(string irrelevant) // Not the most graceful circumvention of Discord.NET
+                                                                  // IUser TypeReader, which cannot be overriden due to
+                                                                  // bug https://github.com/discord-net/Discord.Net/issues/1485
         {
             var roleName = _config["Role Name"];
 
@@ -52,23 +63,39 @@ namespace BirthdayBot.Modules
             await _myRest.PutAsync("/guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
         }
 
-        // Old implementation relying on Discord.Net library functionality dependent on Presence Intent, will not work most of the times
-        [Command("birthday_deprecated")] // Assign role to @mentioned user by Role Name from configuration
+        /**
+         * Old implementation relying on Discord.Net library functionality dependent on Presence Intent
+         * Kept for reference
+         */
+        [Command("birthday_deprecated")]
+        [Summary("Assign configured birthday role to @mentioned user.")]
+        [RequireOwner]
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
             var roleName = _config["Role Name"];
             await user.AddRoleAsync(user.Guild.Roles.First(sp_role => sp_role.Name == roleName));
         }
 
-        // Old implementation relying on Discord.Net library functionality dependent on Presence Intent, will not work most of the times
-        [Command("birthday2_deprecated")] // Assign role to @mentioned user by Role Name from configuration
-        public async Task AssignBirthday2Async(SocketUser user)
+        /**
+         * Old implementation relying on Discord.Net library functionality dependent on Presence Intent
+         * Kept for reference
+         */
+        [Command("birthday2_deprecated")]
+        [Summary("Assign configured birthday role to @mentioned user.")]
+        [RequireOwner]
+        public async Task AssignBirthdayAsync(SocketUser user)
         {
             var roleName = _config["Role Name"];
             await (user as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == roleName));
         }
 
-        [Command("guildusers")] // Retrieve a full list of server users
+        /**
+        * Implementation relying on Discord.Net library functionality dependent on Presence Intent
+        * Kept for reference
+        */
+        [Command("guildusers_deprecated")]
+        [Summary("Retrieve a full list of server users.")]
+        [RequireOwner]
         public async Task GetGuildUsersAsync()
         {
             string response = "";
