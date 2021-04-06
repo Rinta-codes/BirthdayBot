@@ -8,48 +8,51 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
-// Initialises the Bot, connects it to Discord, and hands it over to Command Handler service 
+/** 
+ * Initialises the Bot, connects it to Discord, and hands it over to Command Handler service 
+ */
 namespace BirthdayBot
 {
     class BirthdayBot
     {
         // Configuration path
-        private static string _configPath = "config.json";
+        private static readonly string _configPath = "config.json";
 
         // Prefix for log messages by source
-        private static string _wsLogPrefix = "[WebSocket]";
-        private static string _restLogPrefix = "[REST]";
-        private static string _csLogPrefix = "[CommandService]";
+        private static readonly string _socketLogPrefix = "[WebSocket]";
+        private static readonly string _restLogPrefix = "[REST]";
+        private static readonly string _csLogPrefix = "[CommandService]";
 
         static async Task Main()
         {
-            // Call ConfigureServices to create the ServiceCollection/Provider for passing around the services
+            /**
+             * Correct way of handling IDisposable object
+             */
             using (var services = BirthdayBot.ConfigureServices())
             {
-                // Temporary variables for client and config
-                // Makes for neat code and useful if we need to access them few times
-                var client = services.GetRequiredService<DiscordSocketClient>();
+                // Temporary variables for clients and config, since these are being called multiple times
+                var socketClient = services.GetRequiredService<DiscordSocketClient>();
                 var restClient = services.GetRequiredService<DiscordRestClient>();
                 var config = services.GetRequiredService<IConfiguration>();
 
-                // Hook into log events for client and commands
-                client.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _wsLogPrefix);
+                // Hook into log events for clients and CommandService
+                socketClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _socketLogPrefix);
                 restClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _restLogPrefix);
                 services.GetRequiredService<CommandService>().Log += (LogMessage log) => BirthdayBot.LogAsync(log, _csLogPrefix);
 
-                // Hook into the client ready event
-                client.Ready += () => BirthdayBot.ReadyAsync(_wsLogPrefix);
+                // Hook into the clients ready events
+                socketClient.Ready += () => BirthdayBot.ReadyAsync(_socketLogPrefix);
                 restClient.LoggedIn += () => BirthdayBot.ReadyAsync(_restLogPrefix);
 
-                // Get the Token value from the configuration file
-                await client.LoginAsync(TokenType.Bot, config["Token"]);
+                // Configure login details for the clients
+                await socketClient.LoginAsync(TokenType.Bot, config["Token"]);
                 await restClient.LoginAsync(TokenType.Bot, config["Token"]);
 
                 // Start up the WebSocket connection
                 // Will immediately return after being called, initialising the connection on another thread
-                await client.StartAsync();
+                await socketClient.StartAsync();
 
-                // Start up CommandHandler service
+                // Initialize CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
                 // Block the program until it is closed, so that Bot keeps running after connecting
@@ -57,37 +60,47 @@ namespace BirthdayBot
             }
         }
 
-        // Load configuration from a json file
+        /**
+         * Loads configuration from a json file
+         */
         private static IConfiguration GetConfig(string configPath)
         {
             return new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile(path: configPath).Build();
         }
 
-        // Print log message into console, preceeded by prefix string
+        /**
+         * Prints log message into console, preceeded by prefix string
+         */
         private static Task LogAsync(LogMessage log, string prefix)
         {
             Console.WriteLine("{0} {1}", prefix, log.ToString());
             return Task.CompletedTask;
         }
 
-        // Print connection confirmation into console, preceeded by prefix string
+        /**
+         * Prints connection confirmation into console, preceeded by prefix string
+         */
         private static Task ReadyAsync(string prefix)
         {
-            Console.WriteLine("{0} Connected...", prefix);
+            Console.WriteLine("{0} Ready", prefix);
             return Task.CompletedTask;
         }
 
+        /**
+         * Assembles all required services and their dependencies via DI container
+         */
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(BirthdayBot.GetConfig(_configPath))
+                .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
-                .AddSingleton<DiscordSocketConfig>()
-                .AddSingleton<DiscordRestClient>()
-                //               .AddHttpClient()
+                .AddHttpClient()
                 .AddSingleton<RestService>()
+                .AddSingleton<TimerService>()
                 .BuildServiceProvider();
         }
     }

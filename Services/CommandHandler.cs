@@ -9,58 +9,58 @@ using System.Threading.Tasks;
 
 namespace BirthdayBot.Services
 {
+    /**
+     * Listens to received messages to catch commands, sends commands over to Command Service & processes subsequent Command Service output
+     */
     public class CommandHandler
     {
         // Fields to be set later in the constructor
+        private readonly IServiceProvider _services;
         private readonly IConfiguration _config;
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _client;
-        private readonly IServiceProvider _services;
-        private readonly DiscordSocketConfig _clientConfig;
-        // private readonly DiscordRestClient _restClient; // Not needed
+        // private readonly DiscordSocketConfig _clientConfig; // Not needed at the moment
+        // private readonly DiscordRestClient _restClient; // Not needed at the moment
 
-        public CommandHandler(IServiceProvider services) // This constructor accepts its dependency as an input, which is a type of Dependency Injection
+        public CommandHandler(IServiceProvider services)
         {
-            // Since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
-            // It still expects DiscordSocketClient, so it is not fully abstract -- it merely splits out the implementation from the call
+            _services = services;
             _config = services.GetRequiredService<IConfiguration>();
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _clientConfig = services.GetRequiredService<DiscordSocketConfig>();
-            // _restClient = services.GetRequiredService<DiscordRestClient>(); // Not needed
-            _services = services;
-
-            // Take action when we execute a command
+            // _clientConfig = services.GetRequiredService<DiscordSocketConfig>(); // Not needed at the moment
+            // _restClient = services.GetRequiredService<DiscordRestClient>(); // Not needed at the moment
+            
+            // Hook into CommandExecuted event to print out / log command execution result
             _commands.CommandExecuted += CommandExecutedAsync;
 
-            // Take action when we receive a message (so we can process it, and see if it is a valid command)
+            // Hook into MessageReceived event to execute commands received as messages
             _client.MessageReceived += MessageReceivedAsync;
         }
 
+        /**
+         * Async part of CommandHandler initialisation 
+         */
         public async Task InitializeAsync()
         {
-            // Add TypeReaders to pass non-default arguments to the commands
+            // Add TypeReaders to pass non-default arguments to the commands // Not needed at the moment
             // Should implement this outside of CommandHandler unless there's a way to bulk load them like modules
             // _commands.AddTypeReader<IGuildUser>(new GuildUserTypeReader());
             // _commands.AddTypeReader<int>(new TestTypeReader());
 
-            // Confirm added TypeReaders
-            //foreach (var x in _commands.TypeReaders)
-            //{
-            //    Console.WriteLine("[Typereaders] {0}", x.Key);
-            //    foreach (TypeReader y in x) 
-            //        Console.WriteLine("[Typereaders]   {0}", y);
-            //}
-
-            // Potentially reduntant; Experimenting with GuildUser retrieval
-            // _clientConfig.AlwaysDownloadUsers = true;
-            // Console.WriteLine(_clientConfig.GatewayIntents.GetValueOrDefault().ToString());
+            // Confirm added TypeReaders // Not needed at the moment
+            // foreach (var x in _commands.TypeReaders)
+            // {
+            //     Console.WriteLine("[Typereaders] {0}", x.Key);
+            //     foreach (TypeReader y in x) 
+            //         Console.WriteLine("[Typereaders]   {0}", y);
+            // }
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
-        // Takes actions upon receiving messages
+        // Take actions upon receiving messages
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
             // Ensures we don't process system messages / messages from other bots
@@ -70,7 +70,7 @@ namespace BirthdayBot.Services
             if (message.Source != MessageSource.User) return;
 
             // Initial value for prefix offset
-            var argPos = 0;
+            var prefixOffset = 0;
 
             // Gets prefix from the configuration file
             // Accepts empty prefix
@@ -79,32 +79,35 @@ namespace BirthdayBot.Services
             // Creates context of the received message
             var context = new SocketCommandContext(_client, message);
 
-            // Accept commands both with and without prefix, prioritising prefixed
-            // Checks if prefix is Null or Empty
-            // -> If YES - ExecuteAsync (Executes command if one is found that matches message context)
-            // -> If NO - Determines if the message starts with @mention of the Bot OR has a valid prefix, and adjusts argPos accordingly
-            //      -> If YES - ExecuteAsync
-            //      -> If NO - ExecuteAsync on argPos 0
-            if (String.IsNullOrEmpty(prefix))
-                await _commands.ExecuteAsync(context, argPos, _services);
-            else if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(prefix, ref argPos))
-                await _commands.ExecuteAsync(context, argPos, _services);
-            else
-            {
-                argPos = 0;
-                await _commands.ExecuteAsync(context, argPos, _services);
-            }
+            // Accept commands both with and without prefix, prioritising prefixed:
+            //
+            // Check if prefix is Null or Empty
+            // -> If YES - use default prefixOffset = 0
+            // -> If NO - determine if the message starts with @mention of the Bot OR has a valid prefix, and adjusts prefixOffset accordingly
+            //      -> If YES - use adjusted prefixOffset
+            //      -> If NO - reset prefixOffset to 0
+            //
+            // This means that every message will attempt to execute
+            if (String.IsNullOrEmpty(prefix)) { }
+            else if (message.HasMentionPrefix(_client.CurrentUser, ref prefixOffset) || message.HasStringPrefix(prefix, ref prefixOffset)) { }
+            else prefixOffset = 0;
+
+            // Executes command if one is found that matches message context
+            await _commands.ExecuteAsync(context, prefixOffset, _services);
         }
 
+        /**
+         * Handles result of command execution, including when command was not found
+         */
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // If a command isn't found, log that info to console and exit this method
-            if (!command.IsSpecified) // && !String.IsNullOrEmpty(_config["Prefix"]))
+            // Right now will log for every message without command - temporary
+            if (!command.IsSpecified)
             {
                 System.Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
                 return;
             }
-
 
             // Log success to the console and exit this method
             if (result.IsSuccess)
@@ -114,7 +117,7 @@ namespace BirthdayBot.Services
             }
 
             // Remaining scenarios assume Failure; let the user know
-            await context.Channel.SendMessageAsync($"Command [{command.Value.Name}] failed for {context.User.Username}, context: [{result}]!");
+            await context.Channel.SendMessageAsync($"Command [{command.Value.Name}] failed for {context.User.Username}, context: [{result}]");
         }
     }
 }

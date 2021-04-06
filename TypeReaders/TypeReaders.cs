@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 namespace BirthdayBot.TypeReaders
 {
-    // Currently not working due to bug https://github.com/discord-net/Discord.Net/issues/1485
+    // Override of TypeReaders for classes of Discord.NET, such as GuildUser,
+    // is currently not working due to bug https://github.com/discord-net/Discord.Net/issues/1485
     /*
     class GuildUserTypeReader : TypeReader
     {
