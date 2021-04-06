@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using BirthdayBot.TypeReaders;
+using System.Collections.Generic;
+using System;
 
 namespace BirthdayBot.Modules
 {
@@ -51,16 +53,42 @@ namespace BirthdayBot.Modules
         [Command("birthday")]
         [Summary("Assign configured birthday role to @mentioned user.")]
         public async Task AssignBirthdayAsync(string irrelevant) // Not the most graceful circumvention of Discord.NET
-                                                                  // IUser TypeReader, which cannot be overriden due to
-                                                                  // bug https://github.com/discord-net/Discord.Net/issues/1485
+                                                                 // IUser TypeReader, which cannot be overriden due to
+                                                                 // bug https://github.com/discord-net/Discord.Net/issues/1485
+                                                                 // and will not work as it is without Presence Intent
         {
-            var roleName = _config["Role Name"];
+            // var roleName = _config["Role Name"];
+            var roleName = _config.GetSection("Role Name").Value.ToString();
 
             string userId = Context.Message.MentionedUsers.First().Id.ToString();
             string guildId = Context.Guild.Id.ToString();
             string roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
 
             await _myRest.PutAsync("/guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
+        }
+
+        [Command("birthdaycheck")]
+        [Summary("If @mentioned user has a birthday - assign configured birthday role.")]
+        public async Task CheckBirthdayAsync(string irrelevant)
+        {
+            // List<(string, string)> Birthdays = new();
+            string birthday = "";
+            foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
+            {
+                if (pairIdBirthday["Id"] == Context.Message.MentionedUsers.First().Id.ToString())
+                {
+                    birthday = pairIdBirthday["Date"];
+                }
+            }
+
+            if (birthday == DateTime.Today.ToString("dd MMM"))
+            {
+                await AssignBirthdayAsync(irrelevant);
+                await ReplyAsync(Context.Message.MentionedUsers.First().Username + "'s birthday is today! Happy Birthday!");
+                return;
+            }
+
+            await ReplyAsync(Context.Message.MentionedUsers.First().Username + "'s birthday is not today, it's on " + birthday + "...");
         }
 
         /**
@@ -80,7 +108,7 @@ namespace BirthdayBot.Modules
          * Old implementation relying on Discord.Net library functionality dependent on Presence Intent
          * Kept for reference
          */
-        [Command("birthday2_deprecated")]
+        [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
         [RequireOwner]
         public async Task AssignBirthdayAsync(SocketUser user)
