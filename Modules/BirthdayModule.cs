@@ -4,11 +4,9 @@ using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BirthdayBot.TypeReaders;
-using System.Collections.Generic;
-using System;
 
 namespace BirthdayBot.Modules
 {
@@ -26,7 +24,7 @@ namespace BirthdayBot.Modules
 
         [Command("test")]
         [Summary("Test command for int TypeReader override.")]
-        [RequireOwner]
+        [Disabled]
         public async Task TestAsync(int x) => await ReplyAsync(x.ToString());
 
         [Command("beep")]
@@ -97,7 +95,7 @@ namespace BirthdayBot.Modules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
-        [RequireOwner]
+        [Disabled]
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
             var roleName = _config["Role Name"];
@@ -110,7 +108,7 @@ namespace BirthdayBot.Modules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
-        [RequireOwner]
+        [Disabled]
         public async Task AssignBirthdayAsync(SocketUser user)
         {
             var roleName = _config["Role Name"];
@@ -123,7 +121,7 @@ namespace BirthdayBot.Modules
         */
         [Command("guildusers_deprecated")]
         [Summary("Retrieve a full list of server users.")]
-        [RequireOwner]
+        [Disabled]
         public async Task GetGuildUsersAsync()
         {
             string response = "";
