@@ -30,7 +30,7 @@ namespace BirthdayBot.Services
             _client = services.GetRequiredService<DiscordSocketClient>();
             // _clientConfig = services.GetRequiredService<DiscordSocketConfig>(); // Not needed at the moment
             // _restClient = services.GetRequiredService<DiscordRestClient>(); // Not needed at the moment
-            
+
             // Hook into CommandExecuted event to print out / log command execution result
             _commands.CommandExecuted += CommandExecutedAsync;
 

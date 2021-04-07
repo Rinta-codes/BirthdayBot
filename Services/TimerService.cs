@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Timers;
 using System.Collections.Generic;
+using System.Timers;
 
 namespace BirthdayBot.Services
 {
@@ -45,7 +45,7 @@ namespace BirthdayBot.Services
     class TimerFactory : IDisposable
     {
         private List<(int, Timer)> timers;
-        public TimerFactory() 
+        public TimerFactory()
         {
             timers = new();
         }
@@ -76,6 +76,8 @@ namespace BirthdayBot.Services
             timers.Add((period, timer));
             timers.Sort(comparer); // We already sort at the start, however I want to
                                    // keep timers sorted at all times as a precaution
+
+            Console.WriteLine("Timer initialized - {0} milliseconds", timer.Interval.ToString());
             return timer;
         }
 

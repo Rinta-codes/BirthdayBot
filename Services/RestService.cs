@@ -39,7 +39,7 @@ namespace BirthdayBot.Services
             // Add Authorization header as per Discord documentation
             _client.DefaultRequestHeaders.Add("Authorization", "Bot" + " " + _config["Token"]);
             // _client.DefaultRequestHeaders.Add("Content-Type", "application/json"); // Not a request header, and not needed for Add Role call
-                                                                                      // Will sort out later to be more universal
+            // Will sort out later to be more universal
         }
 
         /** 
@@ -51,7 +51,10 @@ namespace BirthdayBot.Services
             {
                 var response = await _client.PutAsync(_uriBase + requestString, content);
                 var responseString = await response.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(responseString)) Console.WriteLine("[{0}] {1}", this.GetType().Name, responseString);
+                if (!String.IsNullOrEmpty(responseString)) 
+                    Console.WriteLine("[{0}] {1}", this.GetType().Name, responseString);
+                else 
+                    Console.WriteLine("[{0}] Command executed.", this.GetType().Name);
             }
             catch (Exception e)
             {
