@@ -54,6 +54,7 @@ namespace BirthdayBot
 
                 // Initialize CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
+                services.GetRequiredService<ActionHandler>().Initialize();
 
                 // Block the program until it is closed, so that Bot keeps running after connecting
                 await Task.Delay(-1);
@@ -100,7 +101,8 @@ namespace BirthdayBot
                 .AddSingleton<CommandHandler>()
                 .AddHttpClient()
                 .AddSingleton<RestService>()
-                .AddSingleton<TimerService>()
+                .AddSingleton<TimerFactory>()
+                .AddSingleton<ActionHandler>()
                 .BuildServiceProvider();
         }
     }
