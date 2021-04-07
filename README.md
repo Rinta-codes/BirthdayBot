@@ -55,6 +55,7 @@ Functional:
 \[x\] (Refactoring) Implement Bot commands via CommandService feature of Discord.Net  
 \[x\] Make Bot change role with keyword prompt of @mention and Role Name from config  
 \[x\] Make Bot change role with keyword prompt based on date/userID in config file  
+\[ \] Make Bot change role automatically based on date/userID in birthday.config file \[in progress - partially implemented\]  
 
 Tasks:  
 \[x\] Write Readme  
