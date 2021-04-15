@@ -19,7 +19,7 @@ namespace BirthdayBot.Services
         private readonly DiscordSocketClient _client;
         private readonly TimerFactory _timerFactory;
 
-        private List<(Timer, Func<Task>)> repeatingActions;
+        private List<(Timer timer, Func<Task> action)> repeatingActions;
         private readonly ActionModule actions; // I will eventually implement picking up Actions via Reflection
                                                // similar to how Discord.NET picks up commands, therefore this 
                                                // doesn't have to be a part of DI container
@@ -40,11 +40,26 @@ namespace BirthdayBot.Services
             repeatingActions.Add((_timerFactory.CreateTimer(interval.SECOND * 20), actions.SetBirthdaysAction));
             foreach (var action in repeatingActions)
             {
-                action.Item1.Elapsed += async (object sender, ElapsedEventArgs e) => await action.Item2.Invoke();
-                action.Item1.Start();
+                action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
+                action.timer.Start();
             }
         }
 
-        public void Initialize() { }
+        /*
+         * Since timers will only start once ActionHandler is initialised, and DI container does not 
+         * initialise - only instantiate, I have to call empty Initialize() method from Main() to 
+         * get it going
+         * 
+         * I will also need async initialisation for when actions from ActionModule are loaded dynamically
+         */
+        public async Task Initialize() { }
+
+        /*
+         * Loads Actions and initialises their designated timers
+         */
+        private async Task AddActionsAsync() 
+        { 
+            
+        } 
     }
 }

@@ -44,7 +44,7 @@ namespace BirthdayBot.Services
      */
     class TimerFactory : IDisposable
     {
-        private List<(int, Timer)> timers;
+        private List<(int period, Timer timer)> timers;
         public TimerFactory()
         {
             timers = new();
@@ -59,14 +59,14 @@ namespace BirthdayBot.Services
              * Create comparer that compares purely by period, then use it
              * to sort timers and perform a lookup.
              */
-            IComparer<(int, Timer)> comparer = Comparer<(int, Timer)>.Create((x, y) => x.Item1.CompareTo(y.Item1));
+            IComparer<(int period, Timer timer)> comparer = Comparer<(int period, Timer timer)>.Create((x, y) => x.period.CompareTo(y.period));
 
             timers.Sort(comparer);
             int searchResult = timers.BinarySearch((period, null), comparer);
 
             if (searchResult > -1)
             {
-                timer = timers[searchResult].Item2;
+                timer = timers[searchResult].timer;
             }
             else
             {
@@ -85,7 +85,7 @@ namespace BirthdayBot.Services
         {
             foreach (var entry in timers)
             {
-                entry.Item2.Dispose();
+                entry.timer.Dispose();
             }
         }
     }
