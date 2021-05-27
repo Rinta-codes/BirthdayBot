@@ -1,11 +1,4 @@
-﻿using BirthdayBot.Services;
-using Discord;
-using Discord.Commands;
-using Discord.Rest;
-using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Linq;
+﻿using Discord.Commands;
 using System.Threading.Tasks;
 
 namespace BirthdayBot.Modules

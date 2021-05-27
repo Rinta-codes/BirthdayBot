@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using Discord.Commands;
+using System;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Discord.WebSocket;
 
 public class Disabled : PreconditionAttribute
 {
-    public Disabled() {}
+    public Disabled() { }
 
     public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {

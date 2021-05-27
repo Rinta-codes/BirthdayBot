@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using BirthdayBot.Services;
 using Discord;
 using Discord.WebSocket;
-using BirthdayBot.Services;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BirthdayBot.Modules
 {
@@ -27,7 +27,8 @@ namespace BirthdayBot.Modules
         /*
          * Check if any of the birthdays in the config are today.
          * For all discovered birthdays:
-         * Assign Birthday Role to corresponding user in all applicable servers.
+         *  - Assign Birthday Role to corresponding user in all applicable servers.
+         *  - Send a congratulatory message to a default channel of each applicable server.
          */
         public async Task SetBirthdaysAction()
         {
@@ -59,7 +60,7 @@ namespace BirthdayBot.Modules
             {
                 foreach (var guild in guilds)
                 {
-                    roleId =  guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
+                    roleId = guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
                     await _myRest.PutAsync("/guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
                     defaultChannel = await guild.GetDefaultChannelAsync() as SocketTextChannel;
                     user = (await (_client as IDiscordClient).GetUserAsync(ulong.Parse(userId)) as SocketUser);

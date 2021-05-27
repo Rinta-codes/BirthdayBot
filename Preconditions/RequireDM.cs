@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
+using System;
+using System.Threading.Tasks;
 
 public class RequireDM : PreconditionAttribute
 {
-    public RequireDM() {}
+    public RequireDM() { }
 
     public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {

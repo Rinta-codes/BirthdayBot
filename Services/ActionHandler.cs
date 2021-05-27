@@ -1,14 +1,11 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using BirthdayBot.Modules;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using BirthdayBot.Modules;
-using System.Timers;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace BirthdayBot.Services
 {
@@ -57,9 +54,9 @@ namespace BirthdayBot.Services
         /*
          * Loads Actions and initialises their designated timers
          */
-        private async Task AddActionsAsync() 
-        { 
-            
-        } 
+        private async Task AddActionsAsync()
+        {
+
+        }
     }
 }
