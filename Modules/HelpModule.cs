@@ -1,11 +1,5 @@
-﻿using BirthdayBot.Services;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using Discord.Rest;
-using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BirthdayBot.Modules
@@ -32,7 +26,7 @@ namespace BirthdayBot.Modules
                 .WithAuthor(Context.Client.CurrentUser)
                 .WithTitle("__Available Commands__")
                 .WithColor(Color.Magenta);
-            
+
 
             bool disabled = false;
             foreach (var command in _commands.Commands)
