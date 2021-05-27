@@ -52,9 +52,9 @@ namespace BirthdayBot
                 // Will immediately return after being called, initialising the connection on another thread
                 await socketClient.StartAsync();
 
-                // Initialize CommandHandler service
+                // Initialize CommandHandler and ActionHandler services
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
-                await services.GetRequiredService<ActionHandler>().Initialize();
+                await services.GetRequiredService<ActionHandler>().InitializeAsync();
 
                 // Block the program until it is closed, so that Bot keeps running after connecting
                 await Task.Delay(-1);

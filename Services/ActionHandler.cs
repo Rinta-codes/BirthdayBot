@@ -37,7 +37,7 @@ namespace BirthdayBot.Services
             actions = new(_config, _client, _myRest);
             repeatingActions = new();
 
-            repeatingActions.Add((_timerFactory.CreateTimer(interval.SECOND * 20), actions.SetBirthdaysAction));
+            repeatingActions.Add((_timerFactory.CreateTimer(interval.HOUR * 24), actions.SetBirthdaysAction));
             foreach (var action in repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
@@ -52,7 +52,7 @@ namespace BirthdayBot.Services
          * 
          * I will also need async initialisation for when actions from ActionModule are loaded dynamically
          */
-        public async Task Initialize() { }
+        public async Task InitializeAsync() { }
 
         /*
          * Loads Actions and initialises their designated timers
