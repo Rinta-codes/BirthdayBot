@@ -36,17 +36,16 @@ Create config.json file in main folder with the following content:
       ]  
 	}  
 
-| Token - Bot's Token  
-| Prefix - command prefix, can be empty or a string  
-
-| Role Name - name of the birthday role  
-| Birthdays - an array of user birthdays the bot checks against  
-|   Id - User Id  
-|   Date - Birthday date in DD MMM format (for example, "05 Apr")  
+Token - Bot's Token  
+Prefix - command prefix, can be empty or a string  
+Role Name - name of the birthday role  
+Birthdays - an array of user birthdays the bot checks against  
+Id - User Id  
+Date - Birthday date in DD MMM format (for example, "05 Apr")  
 
 **Log**
 
-Functional:  
+Main Functionality:  
 \[x\] Create a Bot in Discord Developer Portal  
 \[x\] Make Bot go online  
 \[x\] Make Bot do simple action - react "boop" if I say "beep"  
@@ -55,10 +54,11 @@ Functional:
 \[x\] (Refactoring) Implement Bot commands via CommandService feature of Discord.Net  
 \[x\] Make Bot change role with keyword prompt of @mention and Role Name from config  
 \[x\] Make Bot change role with keyword prompt based on date/userID in config file  
-\[ \] Make Bot change role automatically based on date/userID in birthday.config file \[in progress - partially implemented\]  
+\[ \] Make Bot change role automatically based on date/userID in birthday.config file \[partially implemented\]  
 
 Tasks:  
 \[x\] Write Readme  
 \[x\] Implement direct REST call for adding user role  
+\[x\] Implement help command that lists all commands with descriptions
   
 
