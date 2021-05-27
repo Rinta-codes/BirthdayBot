@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace BirthdayBot.Modules
 {
+    /**
+     * This Module contains commands for birthday role assignment and related maintenance
+     */
     public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
         private readonly IConfiguration _config;
@@ -22,24 +25,9 @@ namespace BirthdayBot.Modules
             _myRest = myRest;
         }
 
-        [Command("test")]
-        [Summary("Test command for int TypeReader override.")]
-        [Disabled]
-        public async Task TestAsync(int x) => await ReplyAsync(x.ToString());
-
-        [Command("beep")]
-        [Alias("boop")]
-        [Summary("Simple interaction to test that the Bot is up.")]
-        public async Task PingAsync()
-            => await ReplyAsync("boop");
-
-        [Command("good bot")]
-        [Summary("Be polite to your Bot.")]
-        public async Task GoodBotAsync()
-            => await ReplyAsync("thank you");
-
         [Command("birthdayme")]
         [Summary("Assign \"Birthday Cake\" role to command caller.")]
+        [RequireGuild]
         public async Task AssignBirthdayAsync()
         {
             await (Context.User as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
@@ -49,7 +37,9 @@ namespace BirthdayBot.Modules
          * Current implementation is using direct REST call to Discord API circumventing Discord.Net library
          */
         [Command("birthday")]
-        [Summary("Assign configured birthday role to @mentioned user.")]
+        [Summary("Assign configured birthday role to @mentioned user.\n" +
+                "Only the first mentioned user will be processed.")]
+        [RequireGuild]
         public async Task AssignBirthdayAsync(string irrelevant) // Not the most graceful circumvention of Discord.NET
                                                                  // IUser TypeReader, which cannot be overriden due to
                                                                  // bug https://github.com/discord-net/Discord.Net/issues/1485
@@ -66,10 +56,11 @@ namespace BirthdayBot.Modules
         }
 
         [Command("birthdaycheck")]
-        [Summary("If @mentioned user has a birthday - assign configured birthday role.")]
+        [Summary("If @mentioned user has a birthday - assign configured birthday role.\n" +
+                "Only the first mentioned user will be processed.")]
+        [RequireGuild]
         public async Task CheckBirthdayAsync(string irrelevant)
         {
-            // List<(string, string)> Birthdays = new();
             string birthday = "";
             foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
             {
@@ -95,6 +86,7 @@ namespace BirthdayBot.Modules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
+        [RequireGuild]
         [Disabled]
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
@@ -108,6 +100,7 @@ namespace BirthdayBot.Modules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
+        [RequireGuild]
         [Disabled]
         public async Task AssignBirthdayAsync(SocketUser user)
         {
@@ -121,6 +114,7 @@ namespace BirthdayBot.Modules
         */
         [Command("guildusers_deprecated")]
         [Summary("Retrieve a full list of server users.")]
+        [RequireGuild]
         [Disabled]
         public async Task GetGuildUsersAsync()
         {

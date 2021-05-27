@@ -57,6 +57,7 @@ namespace BirthdayBot.Services
             // }
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>
+
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
@@ -79,18 +80,10 @@ namespace BirthdayBot.Services
             // Creates context of the received message
             var context = new SocketCommandContext(_client, message);
 
-            // Accept commands both with and without prefix, prioritising prefixed:
-            //
-            // Check if prefix is Null or Empty
-            // -> If YES - use default prefixOffset = 0
-            // -> If NO - determine if the message starts with @mention of the Bot OR has a valid prefix, and adjusts prefixOffset accordingly
-            //      -> If YES - use adjusted prefixOffset
-            //      -> If NO - reset prefixOffset to 0
-            //
-            // This means that every message will attempt to execute
+            // Checks if Prefix is null or empty
+            // If not - checks for prefix at the start of received message and adjusts offset accordingly
             if (String.IsNullOrEmpty(prefix)) { }
-            else if (message.HasMentionPrefix(_client.CurrentUser, ref prefixOffset) || message.HasStringPrefix(prefix, ref prefixOffset)) { }
-            else prefixOffset = 0;
+            else message.HasStringPrefix(prefix, ref prefixOffset);
 
             // Executes command if one is found that matches message context
             await _commands.ExecuteAsync(context, prefixOffset, _services);
@@ -102,7 +95,7 @@ namespace BirthdayBot.Services
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // If a command isn't found, log that info to console and exit this method
-            // Right now will log for every message without command - temporary
+            // Right now will log for every message without command
             if (!command.IsSpecified)
             {
                 System.Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
