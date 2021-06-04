@@ -12,7 +12,7 @@ namespace BirthdayBot.Services
     /**
      * Listens to received messages to catch commands, sends commands over to Command Service & processes subsequent Command Service output
      */
-    public class CommandHandler
+    public class CommandHandlingService
     {
         // Fields to be set later in the constructor
         private readonly IServiceProvider _services;
@@ -22,7 +22,7 @@ namespace BirthdayBot.Services
         // private readonly DiscordSocketConfig _clientConfig; // Not needed at the moment
         // private readonly DiscordRestClient _restClient; // Not needed at the moment
 
-        public CommandHandler(IServiceProvider services)
+        public CommandHandlingService(IServiceProvider services)
         {
             _services = services;
             _config = services.GetRequiredService<IConfiguration>();

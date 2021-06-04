@@ -53,8 +53,8 @@ namespace BirthdayBot
                 await socketClient.StartAsync();
 
                 // Initialize CommandHandler and ActionHandler services
-                await services.GetRequiredService<CommandHandler>().InitializeAsync();
-                await services.GetRequiredService<ActionHandler>().InitializeAsync();
+                await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+                await services.GetRequiredService<ActionHandlingService>().InitializeAsync();
 
                 // Block the program until it is closed, so that Bot keeps running after connecting
                 await Task.Delay(-1);
@@ -98,11 +98,11 @@ namespace BirthdayBot
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<CommandService>()
-                .AddSingleton<CommandHandler>()
+                .AddSingleton<CommandHandlingService>()
                 .AddHttpClient()
                 .AddSingleton<RestService>()
                 .AddSingleton<TimerFactory>()
-                .AddSingleton<ActionHandler>()
+                .AddSingleton<ActionHandlingService>()
                 .BuildServiceProvider();
         }
     }
