@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace BirthdayBot.Services
 {
-    class ActionHandler
+    class ActionHandlingService
     {
         private readonly IConfiguration _config;
         private readonly RestService _myRest;
@@ -22,7 +22,7 @@ namespace BirthdayBot.Services
                                                // similar to how Discord.NET picks up commands, therefore this 
                                                // doesn't have to be a part of DI container
 
-        public ActionHandler(IServiceProvider services)
+        public ActionHandlingService(IServiceProvider services)
         {
             Console.WriteLine("Action Handler initializing...");
 
