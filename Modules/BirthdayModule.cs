@@ -80,6 +80,29 @@ namespace BirthdayBot.Modules
             await ReplyAsync(Context.Message.MentionedUsers.First().Username + "'s birthday is not today, it's on " + birthday + "...");
         }
 
+        [Command("guilduser")]
+        [Summary("Get GuildUser via Rest")]
+        [RequireGuild]
+        public async Task GetGuildUserAsync(string irrelevant)
+        {
+            IGuildUser testUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
+            await ReplyAsync(testUser.ToString());
+        
+        }
+
+
+        [Command("birthdayrest")]
+        [Summary("Get GuildUser via Rest")]
+        [RequireGuild]
+        public async Task AssignRestBirthdayAsync(string irrelevant)
+        {
+            IGuildUser guildUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
+            var roleName = _config.GetSection("Role Name").Value.ToString();
+            IRole role = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName);
+
+            await guildUser.AddRoleAsync(role);
+        }
+
         /**
          * Old implementation relying on Discord.Net library functionality dependent on Presence Intent
          * Kept for reference

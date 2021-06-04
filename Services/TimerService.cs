@@ -4,7 +4,7 @@ using System.Timers;
 
 namespace BirthdayBot.Services
 {
-    public struct interval
+    public struct Interval
     {
         public const int
         SECOND = 1000,
@@ -21,7 +21,7 @@ namespace BirthdayBot.Services
     {
         private Timer timer;
 
-        public void SetTimer(int period = interval.DAY)
+        public void SetTimer(int period = Interval.DAY)
         {
             timer = new System.Timers.Timer((double)period);
         }
