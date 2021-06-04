@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Reflection;
 
 namespace BirthdayBot.Services
 {
@@ -30,11 +31,13 @@ namespace BirthdayBot.Services
             _client = services.GetRequiredService<DiscordSocketClient>();
             _timerFactory = services.GetRequiredService<TimerFactory>();
 
+            AddActionsAsync();
+
             // Placeholder code that initializes ActionModule and creates hardcoded Timer for SetBirthdayAction
             actions = new(_config, _client, _myRest);
             repeatingActions = new();
 
-            repeatingActions.Add((_timerFactory.CreateTimer(interval.HOUR * 24), actions.SetBirthdaysAction));
+            repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), actions.SetBirthdaysAction));
             foreach (var action in repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
@@ -56,7 +59,17 @@ namespace BirthdayBot.Services
          */
         private async Task AddActionsAsync()
         {
+            Assembly assembly = Assembly.GetEntryAssembly();
+            var result = new List<TypeInfo>();
 
+            foreach (var typeInfo in assembly.DefinedTypes)
+            {
+                if (typeInfo.IsPublic)
+                {
+                    Console.WriteLine(typeInfo.ToString());
+                    result.Add(typeInfo);
+                }
+            }
         }
     }
 }
