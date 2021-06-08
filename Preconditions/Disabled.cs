@@ -2,12 +2,15 @@
 using System;
 using System.Threading.Tasks;
 
-public class Disabled : PreconditionAttribute
+namespace BirthdayBot.Preconditions
 {
-    public Disabled() { }
-
-    public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
+    public class Disabled : PreconditionAttribute
     {
-        return Task.FromResult(PreconditionResult.FromError("This command is currently disabled."));
+        public Disabled() { }
+
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
+        {
+            return Task.FromResult(PreconditionResult.FromError("This command is currently disabled."));
+        }
     }
 }
