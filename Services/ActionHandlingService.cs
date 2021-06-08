@@ -18,9 +18,9 @@ namespace BirthdayBot.Services
         private readonly TimerFactory _timerFactory;
 
         private List<(Timer timer, Func<Task> action)> _repeatingActions;
-        private ActionModule actions; // I will eventually implement picking up Actions via Reflection
-                                      // similar to how Discord.NET picks up commands, at which point
-                                      // this variable will be no longer needed
+        private ActionModule _actions; // I will eventually implement picking up Actions via Reflection
+                                       // similar to how Discord.NET picks up commands, at which point
+                                       // this variable will be no longer needed
 
 
         public ActionHandlingService(IServiceProvider services)
@@ -51,10 +51,10 @@ namespace BirthdayBot.Services
          */
         public void AddActionsTemp()
         {
-            actions = new(_config, _client, _myRest);
+            _actions = new(_config, _client, _myRest);
             _repeatingActions = new();
 
-            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), actions.SetBirthdaysAction));
+            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), _actions.SetBirthdaysAction));
             foreach (var action in _repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
