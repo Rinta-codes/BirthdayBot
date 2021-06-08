@@ -1,4 +1,4 @@
-﻿using BirthdayBot.Modules;
+﻿using BirthdayBot.ActionModules;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
