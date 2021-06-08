@@ -17,10 +17,11 @@ namespace BirthdayBot.Services
         private readonly DiscordSocketClient _client;
         private readonly TimerFactory _timerFactory;
 
-        private List<(Timer timer, Func<Task> action)> repeatingActions;
-        private readonly ActionModule actions; // I will eventually implement picking up Actions via Reflection
-                                               // similar to how Discord.NET picks up commands, therefore this 
-                                               // doesn't have to be a part of DI container
+        private List<(Timer timer, Func<Task> action)> _repeatingActions;
+        private ActionModule actions; // I will eventually implement picking up Actions via Reflection
+                                      // similar to how Discord.NET picks up commands, at which point
+                                      // this variable will be no longer needed
+
 
         public ActionHandlingService(IServiceProvider services)
         {
@@ -31,23 +32,13 @@ namespace BirthdayBot.Services
             _client = services.GetRequiredService<DiscordSocketClient>();
             _timerFactory = services.GetRequiredService<TimerFactory>();
 
-            AddActionsAsync();
-
-            // Placeholder code that initializes ActionModule and creates hardcoded Timer for SetBirthdayAction
-            actions = new(_config, _client, _myRest);
-            repeatingActions = new();
-
-            repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), actions.SetBirthdaysAction));
-            foreach (var action in repeatingActions)
-            {
-                action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
-                action.timer.Start();
-            }
+            // await AddActionsAsync();
+            AddActionsTemp();
         }
 
         /*
          * Since timers will only start once ActionHandler is initialised, and DI container does not 
-         * initialise - only instantiate, I have to call empty Initialize() method from Main() to 
+         * initialise - only instantiate, I have to call empty InitializeAsync() method from Main() to 
          * get it going
          * 
          * I will also need async initialisation for when actions from ActionModule are loaded dynamically
@@ -55,7 +46,27 @@ namespace BirthdayBot.Services
         public async Task InitializeAsync() { }
 
         /*
-         * Loads Actions and initialises their designated timers
+         * Placeholder method that directly initializes ActionModule and creates hardcoded Timer for SetBirthdayAction
+         * To be replaced later with AddActionsAsync()
+         */
+        public void AddActionsTemp()
+        {
+            actions = new(_config, _client, _myRest);
+            _repeatingActions = new();
+
+            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), actions.SetBirthdaysAction));
+            foreach (var action in _repeatingActions)
+            {
+                action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
+                action.timer.Start();
+            }
+        }
+
+        /*
+         * * Work In Progress
+         * * When it is complete, it will do the following:
+         * 
+         * Loads Actions into the list and initialises their designated timers
          */
         private async Task AddActionsAsync()
         {
