@@ -3,15 +3,18 @@ using Discord.WebSocket;
 using System;
 using System.Threading.Tasks;
 
-public class RequireDM : PreconditionAttribute
+namespace BirthdayBot.Preconditions
 {
-    public RequireDM() { }
-
-    public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
+    public class RequireDM : PreconditionAttribute
     {
-        if (context.Channel is not SocketDMChannel)
-            return Task.FromResult(PreconditionResult.FromError("This command is only available via DM"));
+        public RequireDM() { }
 
-        return Task.FromResult(PreconditionResult.FromSuccess());
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
+        {
+            if (context.Channel is not SocketDMChannel)
+                return Task.FromResult(PreconditionResult.FromError("This command is only available via DM"));
+
+            return Task.FromResult(PreconditionResult.FromSuccess());
+        }
     }
 }
