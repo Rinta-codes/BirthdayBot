@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BirthdayBot.Modules
+namespace BirthdayBot.ActionModules
 {
     /*
      * Stores Actions to be executed by Bot on its own
