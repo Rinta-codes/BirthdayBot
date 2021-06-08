@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BirthdayBot.Modules
+namespace BirthdayBot.CommandModules
 {
     /**
      * This Module contains commands for birthday role assignment and related maintenance

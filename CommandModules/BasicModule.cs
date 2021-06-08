@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using System.Threading.Tasks;
 
-namespace BirthdayBot.Modules
+namespace BirthdayBot.CommandModules
 {
     /**
      * This Module contains basic commands for simple bot interactions
