@@ -1,5 +1,7 @@
-﻿using Discord.Commands;
+﻿using BirthdayBot.Preconditions;
+using Discord.Commands;
 using System.Threading.Tasks;
+
 
 namespace BirthdayBot.CommandModules
 {

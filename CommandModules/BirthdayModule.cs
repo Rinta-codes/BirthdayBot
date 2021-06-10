@@ -1,4 +1,5 @@
-﻿using BirthdayBot.Services;
+﻿using BirthdayBot.Preconditions;
+using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
@@ -87,7 +88,7 @@ namespace BirthdayBot.CommandModules
         {
             IGuildUser testUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
             await ReplyAsync(testUser.ToString());
-        
+
         }
 
 
