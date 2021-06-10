@@ -1,4 +1,5 @@
-﻿using BirthdayBot.Services;
+﻿using BirthdayBot.Data;
+using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
@@ -34,6 +35,7 @@ namespace BirthdayBot
                 var socketClient = services.GetRequiredService<DiscordSocketClient>();
                 var restClient = services.GetRequiredService<DiscordRestClient>();
                 var config = services.GetRequiredService<IConfiguration>();
+                var birthdays = services.GetRequiredService<BirthdaysRepository>();
 
                 // Hook into log events for clients and CommandService
                 socketClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _socketLogPrefix);
@@ -51,6 +53,9 @@ namespace BirthdayBot
                 // Start up the WebSocket connection
                 // Will immediately return after being called, initialising the connection on another thread
                 await socketClient.StartAsync();
+
+                // Load birthdays data from configuration file
+                birthdays.LoadUserBirthdaysFromConfig(config);
 
                 // Initialize CommandHandler and ActionHandler services
                 await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
@@ -103,6 +108,7 @@ namespace BirthdayBot
                 .AddSingleton<RestService>()
                 .AddSingleton<TimerFactory>()
                 .AddSingleton<ActionHandlingService>()
+                .AddSingleton<BirthdaysRepository>()
                 .BuildServiceProvider();
         }
     }

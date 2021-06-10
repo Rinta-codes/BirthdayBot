@@ -1,4 +1,5 @@
-﻿using BirthdayBot.Services;
+﻿using BirthdayBot.Data;
+using BirthdayBot.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
@@ -17,15 +18,17 @@ namespace BirthdayBot.ActionModules
         private readonly IConfiguration _config;
         private readonly DiscordSocketClient _client;
         private readonly RestService _myRest;
-        public ActionModule(IConfiguration config, DiscordSocketClient client, RestService myRest)
+        private readonly BirthdaysRepository _birthdays;
+        public ActionModule(IConfiguration config, DiscordSocketClient client, RestService myRest, BirthdaysRepository birthdays)
         {
             _config = config;
             _client = client;
             _myRest = myRest;
+            _birthdays = birthdays;
         }
 
         /*
-         * Check if any of the birthdays in the config are today.
+         * Check if any of the birthdays are today.
          * For all discovered birthdays:
          *  - Assign Birthday Role to corresponding user in all applicable servers.
          *  - Send a congratulatory message to a default channel of each applicable server.
@@ -34,15 +37,7 @@ namespace BirthdayBot.ActionModules
         {
             Console.WriteLine("[SetBirthdaysAction] Execution has began.");
 
-            List<string> todaysBirthdays = new();
-
-            foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
-            {
-                if (pairIdBirthday["Date"] == DateTime.Today.ToString("dd MMM"))
-                {
-                    todaysBirthdays.Add(pairIdBirthday["Id"]);
-                }
-            }
+            List<string> todaysBirthdays = new(_birthdays.LookupUsersByBirthday(DateTime.Today));
 
             if (todaysBirthdays.Count() == 0)
             {
@@ -61,10 +56,17 @@ namespace BirthdayBot.ActionModules
                 foreach (var guild in guilds)
                 {
                     roleId = guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
-                    await _myRest.PutAsync("/guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
                     defaultChannel = await guild.GetDefaultChannelAsync() as SocketTextChannel;
                     user = (await (_client as IDiscordClient).GetUserAsync(ulong.Parse(userId)) as SocketUser);
-                    await defaultChannel.SendMessageAsync("It's " + user.Username + "'s birthday today! Happy Birthday!");
+
+                    // Add role (by id) to the user (by id) - requires no IRole or IUser objects
+                    await _myRest.PutAsync("/guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
+
+                    if (user is not null)
+                        // Username can be replaced with Nickname once I change user type from SocketUser to GuildUser
+                        await defaultChannel.SendMessageAsync("It's " + user.Username + "'s birthday today! Happy Birthday!"); // <- fails to retrieve some of the users on the first try
+                    else
+                        Console.WriteLine($"No user retrieved for user id = {userId}");
                 }
             }
 
