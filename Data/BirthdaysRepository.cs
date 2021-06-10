@@ -34,7 +34,10 @@ namespace BirthdayBot.Data
             if (IsUserDuplicate(userID))
                 throw new ArgumentException($"Failed to add a new User Birthday. The following UserID already exists: {userID}");
             else
+            {
                 _birthdays.Add((userID, birthdayDate));
+                userIDs.Add(id);
+            }
         }
 
         public void DeleteUserBirthday(string userID) // TBU
@@ -55,7 +58,6 @@ namespace BirthdayBot.Data
                     id = pairIdBirthday["Id"];
 
                     AddUserBirthday(id, date);
-                    userIDs.Add(id);
 
                     Console.WriteLine($"Birthday loaded: {pairIdBirthday["Id"]} - {date}");
                 }
