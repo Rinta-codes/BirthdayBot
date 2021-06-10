@@ -1,12 +1,13 @@
 ﻿using BirthdayBot.ActionModules;
+using BirthdayBot.Data;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Reflection;
 
 namespace BirthdayBot.Services
 {
@@ -16,6 +17,7 @@ namespace BirthdayBot.Services
         private readonly RestService _myRest;
         private readonly DiscordSocketClient _client;
         private readonly TimerFactory _timerFactory;
+        private readonly BirthdaysRepository _birthdays;
 
         private List<(Timer timer, Func<Task> action)> _repeatingActions;
         private ActionModule _actions; // I will eventually implement picking up Actions via Reflection
@@ -31,6 +33,7 @@ namespace BirthdayBot.Services
             _myRest = services.GetRequiredService<RestService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _timerFactory = services.GetRequiredService<TimerFactory>();
+            _birthdays = services.GetRequiredService<BirthdaysRepository>();
 
             // await AddActionsAsync();
             AddActionsTemp();
@@ -51,10 +54,10 @@ namespace BirthdayBot.Services
          */
         public void AddActionsTemp()
         {
-            _actions = new(_config, _client, _myRest);
+            _actions = new(_config, _client, _myRest, _birthdays);
             _repeatingActions = new();
 
-            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.HOUR * 24), _actions.SetBirthdaysAction));
+            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.SECOND * 10), _actions.SetBirthdaysAction));
             foreach (var action in _repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
