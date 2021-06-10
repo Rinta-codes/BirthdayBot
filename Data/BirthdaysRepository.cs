@@ -36,7 +36,7 @@ namespace BirthdayBot.Data
             else
             {
                 _birthdays.Add((userID, birthdayDate));
-                userIDs.Add(id);
+                userIDs.Add(userID);
             }
         }
 
