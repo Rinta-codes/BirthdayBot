@@ -14,7 +14,7 @@ using System.Threading.Tasks;
  */
 namespace BirthdayBot
 {
-    class BirthdayBot
+    public class BirthdayBot
     {
         // Configuration path
         private static readonly string _configPath = "config.json";

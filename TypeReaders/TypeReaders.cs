@@ -7,7 +7,7 @@ namespace BirthdayBot.TypeReaders
     // Override of TypeReaders for classes of Discord.NET, such as GuildUser,
     // is currently not working due to bug https://github.com/discord-net/Discord.Net/issues/1485
     /*
-    class GuildUserTypeReader : TypeReader
+    public class GuildUserTypeReader : TypeReader
     {
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
@@ -26,7 +26,7 @@ namespace BirthdayBot.TypeReaders
     }
     */
 
-    class TestTypeReader : TypeReader
+    public class TestTypeReader : TypeReader
     {
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {

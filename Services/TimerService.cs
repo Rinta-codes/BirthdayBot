@@ -17,7 +17,7 @@ namespace BirthdayBot.Services
     /**
      * Customizeable timer with exposed Elapsed event
      */
-    class TimerService : IDisposable
+    public class TimerService : IDisposable
     {
         private Timer timer;
 
@@ -42,7 +42,7 @@ namespace BirthdayBot.Services
     /**
      * Timer Factory
      */
-    class TimerFactory : IDisposable
+    public class TimerFactory : IDisposable
     {
         private List<(int period, Timer timer)> timers;
         public TimerFactory()
