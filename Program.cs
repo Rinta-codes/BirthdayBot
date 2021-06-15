@@ -35,7 +35,7 @@ namespace BirthdayBot
                 var socketClient = services.GetRequiredService<DiscordSocketClient>();
                 var restClient = services.GetRequiredService<DiscordRestClient>();
                 var config = services.GetRequiredService<IConfiguration>();
-                var birthdays = services.GetRequiredService<BirthdaysRepository>();
+                var birthdays = services.GetRequiredService<IBirthdaysRepository>();
 
                 // Hook into log events for clients and CommandService
                 socketClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _socketLogPrefix);
@@ -55,7 +55,7 @@ namespace BirthdayBot
                 await socketClient.StartAsync();
 
                 // Load birthdays data from configuration file
-                birthdays.LoadUserBirthdaysFromConfig(config);
+                await birthdays.LoadUserBirthdaysAsync();
 
                 // Initialize CommandHandler and ActionHandler services
                 await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
@@ -98,7 +98,8 @@ namespace BirthdayBot
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                .AddSingleton<IConfiguration>(BirthdayBot.GetConfig(_configPath))
+                .AddSingleton<IConfiguration>(GetConfig(_configPath))
+                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryFromConfig>()
                 .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()
@@ -108,7 +109,6 @@ namespace BirthdayBot
                 .AddSingleton<RestService>()
                 .AddSingleton<TimerFactory>()
                 .AddSingleton<ActionHandlingService>()
-                .AddSingleton<BirthdaysRepository>()
                 .BuildServiceProvider();
         }
     }

@@ -1,90 +1,66 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Threading.Tasks;
 
 namespace BirthdayBot.Data
 {
-    using UserID = System.String;
+    using UserId = String;
 
-    class BirthdaysRepository
+    /*
+     * This abstract class implements only the data management part of the interface.
+     * Various ways of loading initial data (from config, from database, etc.) 
+     * are supplied by concrete classes derived from this one.
+     */
+    public abstract class BirthdaysRepository : IBirthdaysRepository
     {
         // Since I will need to look up Users from Birthdays, which is a
         // many-to-one relation, List of tuples makes more sense than a
         // Dictionary
-        private List<(string UserID, DateTime BirthdayDate)> _birthdays = new();
+        private List<(string UserId, DateTime BirthdayDate)> _birthdays = new();
 
         // Separately stored list of User IDs for fast duplicate check
-        HashSet<string> userIDs = new();
+        private HashSet<string> userIDs = new();
 
-        private readonly string birthdayDateFormat = "dd MMM"; // Might change to read this from config
-                                                               // or mayhaps a hardcoded singleton
-
-
-        private bool IsUserDuplicate(string userID)
+        private bool IsUserDuplicate(string userId)
         {
-            if (userIDs.Contains(userID))
+            if (userIDs.Contains(userId))
                 return true;
             else
                 return false;
         }
 
-        public void AddUserBirthday(string userID, DateTime birthdayDate)
+        public void AddUserBirthday(string userId, DateTime birthdayDate)
         {
-            if (IsUserDuplicate(userID))
-                throw new ArgumentException($"Failed to add a new User Birthday. The following UserID already exists: {userID}");
+            if (IsUserDuplicate(userId))
+                throw new ArgumentException($"Failed to add a new User Birthday. The following UserId already exists: {userId}");
             else
             {
-                _birthdays.Add((userID, birthdayDate));
-                userIDs.Add(userID);
+                _birthdays.Add((userId, birthdayDate));
+                userIDs.Add(userId);
             }
         }
 
-        public void DeleteUserBirthday(string userID) // TBU
+        public void DeleteUserBirthday(string userId) // TBU
         { }
 
-        public void AdjustUserBirthday(string userID, DateTime newBirthdayDate) // TBU
+        public void AdjustUserBirthday(string userId, DateTime newBirthdayDate) // TBU
         { }
 
-        public void LoadUserBirthdaysFromConfig(IConfiguration config)
+        public List<UserId> LookupUsersByBirthday(DateTime birthdayDate)
         {
-            DateTime date = DateTime.Today;
-            UserID id = new(String.Empty);
-
-            foreach (var pairIdBirthday in config.GetSection("Birthdays").Get<IConfigurationSection[]>())
-            {
-                if (DateTime.TryParseExact(pairIdBirthday["Date"], birthdayDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-                {
-                    id = pairIdBirthday["Id"];
-
-                    AddUserBirthday(id, date);
-
-                    Console.WriteLine($"Birthday loaded: {pairIdBirthday["Id"]} - {date}");
-                }
-                else
-                {
-                    throw new FormatException("One or more Birthday Dates in the configuration file have incorrect format; Expected format: \"" + birthdayDateFormat + "\"");
-                }
-            }
-        }
-
-        public void LoadUserBirthdaysFromDatabase() // TBU
-        { }
-
-
-        public List<UserID> LookupUsersByBirthday(DateTime birthdayDate)
-        {
-            List<UserID> users = new();
+            List<UserId> users = new();
 
             foreach (var pairIdBirthday in _birthdays)
             {
                 if (pairIdBirthday.BirthdayDate.Date == birthdayDate.Date)
                 {
-                    users.Add(pairIdBirthday.UserID);
+                    users.Add(pairIdBirthday.UserId);
                 }
             }
 
             return users;
         }
+
+        public abstract Task LoadUserBirthdaysAsync();
     }
 }
