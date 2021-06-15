@@ -33,7 +33,7 @@ namespace BirthdayBot.ActionModules
          *  - Assign Birthday Role to corresponding user in all applicable servers.
          *  - Send a congratulatory message to a default channel of each applicable server.
          */
-        public async Task SetBirthdaysAction()
+        public async Task SetBirthdaysActionAsync()
         {
             Console.WriteLine("[SetBirthdaysAction] Execution has began.");
 

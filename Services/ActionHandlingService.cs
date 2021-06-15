@@ -57,7 +57,7 @@ namespace BirthdayBot.Services
             _actions = new(_config, _client, _myRest, _birthdays);
             _repeatingActions = new();
 
-            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.SECOND * 10), _actions.SetBirthdaysAction));
+            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.SECOND * 10), _actions.SetBirthdaysActionAsync));
             foreach (var action in _repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
