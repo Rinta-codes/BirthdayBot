@@ -23,7 +23,7 @@ namespace BirthdayBot.Services
 
         public void SetTimer(int period = Interval.DAY)
         {
-            timer = new System.Timers.Timer((double)period);
+            timer = new Timer((double)period);
         }
 
         public event ElapsedEventHandler TimerEvent

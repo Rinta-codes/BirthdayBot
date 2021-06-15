@@ -98,14 +98,14 @@ namespace BirthdayBot.Services
             // Right now will log for every message without command
             if (!command.IsSpecified)
             {
-                System.Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
+                Console.WriteLine($"Command failed to execute for [{context.User.Username}], error message: [{result.ErrorReason}]");
                 return;
             }
 
             // Log success to the console and exit this method
             if (result.IsSuccess)
             {
-                System.Console.WriteLine($"Command [{command.Value.Name}] executed for [{context.User.Username}]");
+                Console.WriteLine($"Command [{command.Value.Name}] executed for [{context.User.Username}]");
                 return;
             }
 
