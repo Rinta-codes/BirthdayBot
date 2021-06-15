@@ -13,7 +13,7 @@ namespace BirthdayBot.ActionModules
     /*
      * Stores Actions to be executed by Bot on its own
      */
-    class ActionModule
+    public class ActionModule
     {
         private readonly IConfiguration _config;
         private readonly DiscordSocketClient _client;

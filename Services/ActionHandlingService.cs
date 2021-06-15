@@ -11,7 +11,7 @@ using System.Timers;
 
 namespace BirthdayBot.Services
 {
-    class ActionHandlingService
+    public class ActionHandlingService
     {
         private readonly IConfiguration _config;
         private readonly RestService _myRest;
