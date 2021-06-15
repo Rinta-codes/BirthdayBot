@@ -18,8 +18,8 @@ namespace BirthdayBot.ActionModules
         private readonly IConfiguration _config;
         private readonly DiscordSocketClient _client;
         private readonly RestService _myRest;
-        private readonly BirthdaysRepository _birthdays;
-        public ActionModule(IConfiguration config, DiscordSocketClient client, RestService myRest, BirthdaysRepository birthdays)
+        private readonly IBirthdaysRepository _birthdays;
+        public ActionModule(IConfiguration config, DiscordSocketClient client, RestService myRest, IBirthdaysRepository birthdays)
         {
             _config = config;
             _client = client;

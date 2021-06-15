@@ -17,7 +17,7 @@ namespace BirthdayBot.Services
         private readonly RestService _myRest;
         private readonly DiscordSocketClient _client;
         private readonly TimerFactory _timerFactory;
-        private readonly BirthdaysRepository _birthdays;
+        private readonly IBirthdaysRepository _birthdays;
 
         private List<(Timer timer, Func<Task> action)> _repeatingActions;
         private ActionModule _actions; // I will eventually implement picking up Actions via Reflection
@@ -33,7 +33,7 @@ namespace BirthdayBot.Services
             _myRest = services.GetRequiredService<RestService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _timerFactory = services.GetRequiredService<TimerFactory>();
-            _birthdays = services.GetRequiredService<BirthdaysRepository>();
+            _birthdays = services.GetRequiredService<IBirthdaysRepository>();
 
             // await AddActionsAsync();
             AddActionsTemp();
