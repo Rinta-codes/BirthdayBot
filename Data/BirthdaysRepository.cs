@@ -19,11 +19,11 @@ namespace BirthdayBot.Data
         private List<(string UserId, DateTime BirthdayDate)> _birthdays = new();
 
         // Separately stored list of User IDs for fast duplicate check
-        private HashSet<string> userIDs = new();
+        private HashSet<string> userIds = new();
 
         private bool IsUserDuplicate(string userId)
         {
-            if (userIDs.Contains(userId))
+            if (userIds.Contains(userId))
                 return true;
             else
                 return false;
@@ -36,7 +36,7 @@ namespace BirthdayBot.Data
             else
             {
                 _birthdays.Add((userId, birthdayDate));
-                userIDs.Add(userId);
+                userIds.Add(userId);
             }
         }
 
