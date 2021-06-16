@@ -31,7 +31,7 @@ namespace BirthdayBot.Data
                 {
                     id = pairIdBirthday["Id"];
 
-                    AddUserBirthday(id, date);
+                    AddUserBirthdayInternalStorage(id, date);
 
                     Console.WriteLine($"Birthday loaded: {pairIdBirthday["Id"]} - {date}");
                 }
@@ -45,6 +45,11 @@ namespace BirthdayBot.Data
         public override async Task LoadUserBirthdaysAsync()
         {
             LoadUserBirthdays();
+        }
+
+        public override async Task SaveChanges() // TBU
+        {
+            // TBU
         }
 
     }

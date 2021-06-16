@@ -29,22 +29,34 @@ namespace BirthdayBot.Data
                 return false;
         }
 
+        protected void AddUserBirthdayInternalStorage(string userId, DateTime birthdayDate)
+        {
+            _birthdays.Add((userId, birthdayDate));
+            userIds.Add(userId);
+        }
+
         public void AddUserBirthday(string userId, DateTime birthdayDate)
         {
             if (IsUserDuplicate(userId))
                 throw new ArgumentException($"Failed to add a new User Birthday. The following UserId already exists: {userId}");
             else
             {
-                _birthdays.Add((userId, birthdayDate));
-                userIds.Add(userId);
+                AddUserBirthdayInternalStorage(userId, birthdayDate);
+                SaveChanges();
             }
         }
 
         public void DeleteUserBirthday(string userId) // TBU
-        { }
+        {
+            // TBU
+            SaveChanges();
+        }
 
         public void AdjustUserBirthday(string userId, DateTime newBirthdayDate) // TBU
-        { }
+        {
+            // TBU
+            SaveChanges();
+        }
 
         public List<UserId> LookupUsersByBirthday(DateTime birthdayDate)
         {
@@ -62,5 +74,8 @@ namespace BirthdayBot.Data
         }
 
         public abstract Task LoadUserBirthdaysAsync();
+
+        // Saves changes into the original source; Name / params subject to change
+        public abstract Task SaveChanges();
     }
 }
