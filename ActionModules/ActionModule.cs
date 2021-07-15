@@ -37,7 +37,7 @@ namespace BirthdayBot.ActionModules
         {
             Console.WriteLine("[SetBirthdaysAction] Execution has began.");
 
-            List<string> todaysBirthdays = new(_birthdays.LookupUsersByBirthday(DateTime.Today));
+            List<string> todaysBirthdays = new(await _birthdays.LookupUsersByBirthday(DateTime.Today));
 
             if (todaysBirthdays.Count() == 0)
             {
@@ -70,7 +70,7 @@ namespace BirthdayBot.ActionModules
                 }
             }
 
-            Console.WriteLine("[{0}] [SetBirthdaysAction] Execution completed. {1} birthdays detected.", DateTime.Now.ToString(), todaysBirthdays.Count());
+            Console.WriteLine($"[{DateTime.Now.ToString()}] [SetBirthdaysAction] Execution completed. {todaysBirthdays.Count()} birthdays detected.");
         }
 
     }

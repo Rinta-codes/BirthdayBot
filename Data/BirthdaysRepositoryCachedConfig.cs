@@ -7,14 +7,20 @@ namespace BirthdayBot.Data
 {
     using UserId = String;
 
-    class BirthdaysRepositoryFromConfig : BirthdaysRepository
+    /*
+     * This class details data retrieval and data upload process for BirthdayRepositoryCached
+     * when birthday data is stored in config file
+     * 
+     * * Will require minor changes when config is no longer part of DI container
+     */
+    class BirthdaysRepositoryCachedConfig : BirthdaysRepositoryCached
     {
         private readonly IConfiguration _config;
 
         private readonly string birthdayDateFormat = "dd MMM"; // Might change to read this from config
                                                                // or mayhaps a hardcoded singleton
 
-        public BirthdaysRepositoryFromConfig(IConfiguration config)
+        public BirthdaysRepositoryCachedConfig(IConfiguration config)
         {
             _config = config;
         }
@@ -47,7 +53,7 @@ namespace BirthdayBot.Data
             LoadUserBirthdays();
         }
 
-        public override async Task SaveChanges() // TBU
+        public override async Task SaveChangesAsync() // TBU
         {
             // TBU
         }

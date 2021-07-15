@@ -77,7 +77,7 @@ namespace BirthdayBot.Services
             timers.Sort(comparer); // We already sort at the start, however I want to
                                    // keep timers sorted at all times as a precaution
 
-            Console.WriteLine("Timer initialized - {0} milliseconds", timer.Interval.ToString());
+            Console.WriteLine($"Timer initialized - {timer.Interval.ToString()} milliseconds");
             return timer;
         }
 
