@@ -14,22 +14,20 @@ namespace BirthdayBot.Services
      */
     public class CommandHandlingService
     {
-        // Fields to be set later in the constructor
         private readonly IServiceProvider _services;
         private readonly IConfiguration _config;
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _client;
-        // private readonly DiscordSocketConfig _clientConfig; // Not needed at the moment
-        // private readonly DiscordRestClient _restClient; // Not needed at the moment
+        private readonly string _prefix;
 
-        public CommandHandlingService(IServiceProvider services)
+        public CommandHandlingService(IServiceProvider services, IConfiguration config, CommandService commands, DiscordSocketClient client)
         {
             _services = services;
-            _config = services.GetRequiredService<IConfiguration>();
-            _commands = services.GetRequiredService<CommandService>();
-            _client = services.GetRequiredService<DiscordSocketClient>();
-            // _clientConfig = services.GetRequiredService<DiscordSocketConfig>(); // Not needed at the moment
-            // _restClient = services.GetRequiredService<DiscordRestClient>(); // Not needed at the moment
+            _config = config;
+            _commands = commands;
+            _client = client;
+
+            _prefix = _config["Prefix"]; // command prefix, such as ! or ~
 
             // Hook into CommandExecuted event to print out / log command execution result
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -44,7 +42,7 @@ namespace BirthdayBot.Services
         public async Task InitializeAsync()
         {
             // Add TypeReaders to pass non-default arguments to the commands // Not needed at the moment
-            // Should implement this outside of CommandHandler unless there's a way to bulk load them like modules
+            // Will eventually implement this outside of CommandHandler unless there's a way to bulk load them like modules
             // _commands.AddTypeReader<IGuildUser>(new GuildUserTypeReader());
             // _commands.AddTypeReader<int>(new TestTypeReader());
 
@@ -57,7 +55,6 @@ namespace BirthdayBot.Services
             // }
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>
-
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
@@ -70,20 +67,13 @@ namespace BirthdayBot.Services
             // Additional check that the message is not system / bot / webhook
             if (message.Source != MessageSource.User) return;
 
-            // Initial value for prefix offset
             var prefixOffset = 0;
-
-            // Gets prefix from the configuration file
-            // Accepts empty prefix
-            string prefix = _config["Prefix"];
-
-            // Creates context of the received message
             var context = new SocketCommandContext(_client, message);
 
-            // Checks if Prefix is null or empty
-            // If not - checks for prefix at the start of received message and adjusts offset accordingly
-            if (String.IsNullOrEmpty(prefix)) { }
-            else message.HasStringPrefix(prefix, ref prefixOffset);
+            // HasStringPrefix checks for prefix at the start of received message and adjusts offset accordingly
+            // Currently if prefix is empty - we process all messages as commands
+            if (String.IsNullOrEmpty(_prefix) || !message.HasStringPrefix(_prefix, ref prefixOffset))
+                return;
 
             // Executes command if one is found that matches message context
             await _commands.ExecuteAsync(context, prefixOffset, _services);
