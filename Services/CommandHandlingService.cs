@@ -51,9 +51,9 @@ namespace BirthdayBot.Services
             // Confirm added TypeReaders // Not needed at the moment
             // foreach (var x in _commands.TypeReaders)
             // {
-            //     Console.WriteLine("[Typereaders] {0}", x.Key);
+            //     Console.WriteLine($"[Typereaders] {x.Key}");
             //     foreach (TypeReader y in x) 
-            //         Console.WriteLine("[Typereaders]   {0}", y);
+            //         Console.WriteLine($"[Typereaders] {y}");
             // }
 
             // Registers commands: all modules that are public and inherit ModuleBase<T>

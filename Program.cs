@@ -26,44 +26,42 @@ namespace BirthdayBot
 
         static async Task Main()
         {
-            /**
-             * Correct way of handling IDisposable object
-             */
-            using (var services = BirthdayBot.ConfigureServices())
-            {
-                // Temporary variables for clients and config, since these are being called multiple times
-                var socketClient = services.GetRequiredService<DiscordSocketClient>();
-                var restClient = services.GetRequiredService<DiscordRestClient>();
-                var config = services.GetRequiredService<IConfiguration>();
-                var birthdays = services.GetRequiredService<IBirthdaysRepository>();
+            // "using" statement facilitates correct handling of IDisposable object such as ServiceProvider
+            using var services = ConfigureServices();
 
-                // Hook into log events for clients and CommandService
-                socketClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _socketLogPrefix);
-                restClient.Log += (LogMessage log) => BirthdayBot.LogAsync(log, _restLogPrefix);
-                services.GetRequiredService<CommandService>().Log += (LogMessage log) => BirthdayBot.LogAsync(log, _csLogPrefix);
+            var socketClient = services.GetRequiredService<DiscordSocketClient>();
+            var restClient = services.GetRequiredService<DiscordRestClient>();
+            var commandService = services.GetRequiredService<CommandService>();
+            var config = services.GetRequiredService<IConfiguration>();
+            var birthdays = services.GetRequiredService<IBirthdaysRepository>();
 
-                // Hook into the clients ready events
-                socketClient.Ready += () => BirthdayBot.ReadyAsync(_socketLogPrefix);
-                restClient.LoggedIn += () => BirthdayBot.ReadyAsync(_restLogPrefix);
+            // Hook into log events for clients and CommandService
+            socketClient.Log += (LogMessage message) => BirthdayBot.LogAsync(message, _socketLogPrefix);
+            restClient.Log += (LogMessage message) => BirthdayBot.LogAsync(message, _restLogPrefix);
+            commandService.Log += (LogMessage message) => BirthdayBot.LogAsync(message, _csLogPrefix);
 
-                // Configure login details for the clients
-                await socketClient.LoginAsync(TokenType.Bot, config["Token"]);
-                await restClient.LoginAsync(TokenType.Bot, config["Token"]);
+            // Hook into clients ready events
+            socketClient.Ready += () => BirthdayBot.ReadyAsync(_socketLogPrefix);
+            restClient.LoggedIn += () => BirthdayBot.ReadyAsync(_restLogPrefix);
 
-                // Start up the WebSocket connection
-                // Will immediately return after being called, initialising the connection on another thread
-                await socketClient.StartAsync();
+            // Configure login details for the clients
+            await socketClient.LoginAsync(TokenType.Bot, config["Token"]);
+            await restClient.LoginAsync(TokenType.Bot, config["Token"]);
 
-                // Load birthdays data from configuration file
-                await birthdays.LoadUserBirthdaysAsync();
+            // Start up the WebSocket connection
+            // Will immediately return after being called, initialising the connection on another thread
+            await socketClient.StartAsync();
 
-                // Initialize CommandHandler and ActionHandler services
-                await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
-                await services.GetRequiredService<ActionHandlingService>().InitializeAsync();
+            // Load birthdays data into cache, if it is required
+            if (birthdays is BirthdaysRepositoryCached birthdaysWithCache)
+                await birthdaysWithCache.LoadUserBirthdaysAsync();
 
-                // Block the program until it is closed, so that Bot keeps running after connecting
-                await Task.Delay(-1);
-            }
+            // Initialize CommandHandler and ActionHandler services
+            await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+            await services.GetRequiredService<ActionHandlingService>().InitializeAsync();
+
+            await Task.Delay(-1);
+
         }
 
         /**
@@ -77,9 +75,9 @@ namespace BirthdayBot
         /**
          * Prints log message into console, preceeded by prefix string
          */
-        private static Task LogAsync(LogMessage log, string prefix)
+        private static Task LogAsync(LogMessage message, string prefix)
         {
-            Console.WriteLine("{0} {1}", prefix, log.ToString());
+            Console.WriteLine($"{prefix} {message.ToString()}");
             return Task.CompletedTask;
         }
 
@@ -88,7 +86,7 @@ namespace BirthdayBot
          */
         private static Task ReadyAsync(string prefix)
         {
-            Console.WriteLine("{0} Ready", prefix);
+            Console.WriteLine($"{prefix} Ready");
             return Task.CompletedTask;
         }
 
@@ -99,7 +97,7 @@ namespace BirthdayBot
         {
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(GetConfig(_configPath))
-                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryFromConfig>()
+                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryCachedConfig>()
                 .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()

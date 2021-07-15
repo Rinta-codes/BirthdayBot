@@ -8,14 +8,12 @@ namespace BirthdayBot.Data
 
     public interface IBirthdaysRepository
     {
-        public void AddUserBirthday(string userId, DateTime birthdayDate);
+        public Task AddUserBirthdayAsync(string userId, DateTime birthdayDate);
 
-        public void DeleteUserBirthday(string userId);
+        public Task DeleteUserBirthdayAsync(string userId);
 
-        public void AdjustUserBirthday(string userId, DateTime newBirthdayDate);
+        public Task AdjustUserBirthdayAsync(string userId, DateTime newBirthdayDate);
 
-        public List<UserId> LookupUsersByBirthday(DateTime birthdayDate);
-
-        public Task LoadUserBirthdaysAsync();
+        public Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate);
     }
 }

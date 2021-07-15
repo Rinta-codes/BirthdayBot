@@ -52,13 +52,13 @@ namespace BirthdayBot.Services
                 var response = await _client.PutAsync(_uriBase + requestString, content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (!String.IsNullOrEmpty(responseString))
-                    Console.WriteLine("[{0}] {1}", this.GetType().Name, responseString);
+                    Console.WriteLine($"[{this.GetType().Name}] {responseString}");
                 else
-                    Console.WriteLine("[{0}] Command executed.", this.GetType().Name);
+                    Console.WriteLine($"[{this.GetType().Name}] Command executed.");
             }
             catch (Exception e)
             {
-                Console.WriteLine("[{0}] {1}", this.GetType().Name, e.Message);
+                Console.WriteLine($"[{this.GetType().Name}] {e.Message}");
             }
         }
     }
