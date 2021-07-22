@@ -60,7 +60,7 @@ namespace BirthdayBot.ActionModules
                     user = (await (_client as IDiscordClient).GetUserAsync(ulong.Parse(userId)) as SocketUser);
 
                     // Add role (by id) to the user (by id) - requires no IRole or IUser objects
-                    await _myRest.PutAsync("/guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
+                    await _myRest.PutAsync("guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
 
                     if (user is not null)
                         // Username can be replaced with Nickname once I change user type from SocketUser to GuildUser

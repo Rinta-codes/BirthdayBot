@@ -103,7 +103,13 @@ namespace BirthdayBot
                 .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
-                .AddHttpClient()
+                .AddHttpClient("RestClient", client =>
+                 {
+                     client.BaseAddress = new Uri("https://discord.com/api/");
+                     client.DefaultRequestHeaders.Clear();
+                     client.DefaultRequestHeaders.Add("Authorization", "Bot" + " " + GetConfig(_configPath)["Token"]);
+                     // TBU for header ("Content-Type", "application/json") // MediaTypeWithQualityHeaderValue("application/json")
+                 }).Services
                 .AddSingleton<RestService>()
                 .AddSingleton<TimerFactory>()
                 .AddSingleton<ActionHandlingService>()
