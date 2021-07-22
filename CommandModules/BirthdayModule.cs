@@ -53,7 +53,7 @@ namespace BirthdayBot.CommandModules
             string guildId = Context.Guild.Id.ToString();
             string roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
 
-            await _myRest.PutAsync("/guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
+            await _myRest.PutAsync("guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
         }
 
         [Command("birthdaycheck")]

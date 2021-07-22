@@ -23,33 +23,21 @@ namespace BirthdayBot.Services
     {
         private readonly HttpClient _client;
         private readonly IConfiguration _config;
-        private readonly string _uriBase = "https://discord.com/api";
 
         public RestService(IConfiguration config, IHttpClientFactory factory)
         {
             _config = config;
-            _client = factory.CreateClient();
-
-            GenerateHeaders();
-        }
-
-        private void GenerateHeaders()
-        {
-            _client.DefaultRequestHeaders.Clear();
-            // Add Authorization header as per Discord documentation
-            _client.DefaultRequestHeaders.Add("Authorization", "Bot" + " " + _config["Token"]);
-            // _client.DefaultRequestHeaders.Add("Content-Type", "application/json"); // Not a request header, and not needed for Add Role call
-            // Will sort out later to be more universal
+            _client = factory.CreateClient("RestClient");
         }
 
         /** 
          * Send PUT call to Discord REST API, print any response / exception to console
          */
-        public async Task PutAsync(string requestString, HttpContent content)
+        public async Task PutAsync(string requestUri, HttpContent content)
         {
             try
             {
-                var response = await _client.PutAsync(_uriBase + requestString, content);
+                var response = await _client.PutAsync(requestUri, content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (!String.IsNullOrEmpty(responseString))
                     Console.WriteLine($"[{this.GetType().Name}] {responseString}");
