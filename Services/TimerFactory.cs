@@ -4,7 +4,7 @@ using System.Timers;
 
 namespace BirthdayBot.Services
 {
-    public struct Interval
+    internal static class Interval
     {
         public const int
         SECOND = 1000,
@@ -16,15 +16,16 @@ namespace BirthdayBot.Services
 
     /**
      * Customizeable timerwrapper with exposed Elapsed event
-     * Currently not in use
+     * 
+     * Incomplete and currently not in use
      */
     public class TimerWrapper : IDisposable
     {
         private Timer timer;
 
-        public void SetTimer(int period = Interval.DAY)
+        public TimerWrapper(int periodInMilliseconds = Interval.DAY) 
         {
-            timer = new Timer((double)period);
+            timer = new Timer(periodInMilliseconds);
         }
 
         public event ElapsedEventHandler TimerEvent
@@ -45,38 +46,19 @@ namespace BirthdayBot.Services
      */
     public class TimerFactory : IDisposable
     {
-        private List<(int period, Timer timer)> timers;
-        public TimerFactory()
-        {
-            timers = new();
-        }
+        // Dictionary of pairs <period, timer(period)>
+        private Dictionary<int, Timer> timers = new();
 
-        public Timer CreateTimer(int period)
+        // If we already have a timer for this period - re-use it instead of creating a new one
+        public Timer CreateTimer(int periodInMilliseconds)
         {
             Timer timer = null;
 
-            /**
-             * Check if we already have a timer activated for this period:
-             * Create comparer that compares purely by period, then use it
-             * to sort timers and perform a lookup.
-             */
-            IComparer<(int period, Timer timer)> comparer = Comparer<(int period, Timer timer)>.Create((x, y) => x.period.CompareTo(y.period));
-
-            timers.Sort(comparer);
-            int searchResult = timers.BinarySearch((period, null), comparer);
-
-            if (searchResult > -1)
+            if (!timers.TryGetValue(periodInMilliseconds, out timer))
             {
-                timer = timers[searchResult].timer;
+                timer = new(periodInMilliseconds);
+                timers.Add(periodInMilliseconds, timer);
             }
-            else
-            {
-                timer = new((double)period);
-            }
-
-            timers.Add((period, timer));
-            timers.Sort(comparer); // We already sort at the start, however I want to
-                                   // keep timers sorted at all times as a precaution
 
             Console.WriteLine($"Timer initialized - {timer.Interval.ToString()} milliseconds");
             return timer;
@@ -86,7 +68,7 @@ namespace BirthdayBot.Services
         {
             foreach (var entry in timers)
             {
-                entry.timer.Dispose();
+                entry.Value.Dispose();
             }
         }
     }
