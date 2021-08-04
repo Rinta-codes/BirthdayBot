@@ -15,9 +15,10 @@ namespace BirthdayBot.Services
     }
 
     /**
-     * Customizeable timer with exposed Elapsed event
+     * Customizeable timerwrapper with exposed Elapsed event
+     * Currently not in use
      */
-    public class TimerService : IDisposable
+    public class TimerWrapper : IDisposable
     {
         private Timer timer;
 
