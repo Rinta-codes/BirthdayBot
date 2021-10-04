@@ -39,14 +39,19 @@ namespace BirthdayBot.Services
             {
                 var response = await _client.PutAsync(requestUri, content);
                 var responseString = await response.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(responseString))
-                    Console.WriteLine($"[{this.GetType().Name}] {responseString}");
-                else
-                    Console.WriteLine($"[{this.GetType().Name}] Command executed.");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"[{this.GetType().Name}] PUT execution failed for: {requestUri}; Response Message: {responseString}");
+                    throw new HttpRequestException($"PUT execution failed for: {requestUri}");
+                }
+                
+                Console.WriteLine($"[{this.GetType().Name}] PUT executed. Response Message: {responseString}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[{this.GetType().Name}] {e.Message}");
+                Console.WriteLine($"[{this.GetType().Name}] {e.Message}"); // will be replaced with real logging later
+                throw;
             }
         }
     }
