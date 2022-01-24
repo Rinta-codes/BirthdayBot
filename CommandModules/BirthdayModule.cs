@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using BirthdayBot.Extensions;
 
 namespace BirthdayBot.CommandModules
 {
@@ -16,6 +17,8 @@ namespace BirthdayBot.CommandModules
      */
     public class BirthdayModule : ModuleBase<SocketCommandContext>
     {
+        private readonly string _roleName; // This will have to be changed once different Role Name for different servers is supported
+
         private readonly IConfiguration _config;
         private readonly DiscordRestClient _clientRest;
         private readonly RestService _myRest;
@@ -24,19 +27,41 @@ namespace BirthdayBot.CommandModules
             _config = config;
             _clientRest = clientRest;
             _myRest = myRest;
+
+            _roleName = _config["Role Name"]; // _config.GetSection("Role Name").Value.ToString();
         }
+
+        /**
+         * Current implementation for Birthday Role assignment is using direct REST call to Discord API
+         * circumventing Discord.Net library.
+         * Initially was done to avoid requesting Presence Intent for the bot, which is required when
+         * using DiscordSocketClient to retrieve GuildUser object.
+         * In truth, DiscordRestClient could be used instead, but now that I implemented my own REST call for this -
+         * I leave it here, because it is mine and I like it.
+         */
 
         [Command("birthdayme")]
         [Summary("Assign \"Birthday Cake\" role to command caller.")]
         [RequireGuild]
-        public async Task AssignBirthdayAsync()
+        public async Task AssignBirthdayAsync() // Duplicate code can be removed once AssignBirthdayAsync(string) 
+                                                // is adjusted to AssignBirthdayAsync(IUser) (currently won't work)
+                
         {
-            await (Context.User as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == "Birthday Cake"));
-        }
+            string userId = Context.User.Id.ToString();
+            string guildId = Context.Guild.Id.ToString();
+            string roleId = string.Empty;
+            try
+            {
+                roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == _roleName).Id.ToString();
+            }
+            catch 
+            { 
+                // If RoleId is not found - it can remain empty; Rest call will fail and throw its own exception
+            }
 
-        /**
-         * Current implementation is using direct REST call to Discord API circumventing Discord.Net library
-         */
+            await _myRest.PutAsync("guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
+            }
+
         [Command("birthday")]
         [Summary("Assign configured birthday role to @mentioned user.\n" +
                 "Only the first mentioned user will be processed.")]
@@ -44,14 +69,23 @@ namespace BirthdayBot.CommandModules
         public async Task AssignBirthdayAsync(string irrelevant) // Not the most graceful circumvention of Discord.NET
                                                                  // IUser TypeReader, which cannot be overriden due to
                                                                  // bug https://github.com/discord-net/Discord.Net/issues/1485
-                                                                 // and will not work as it is without Presence Intent
+                                                                 // and will not work as it is without Presence Intent;
+                                                                 //
+                                                                 // I.e.: using real input parameters, for example IUser,
+                                                                 // leads to exception throw for any user apart from Bot
+                                                                 // and Owner, so I have to use this ugly fix.
         {
-            // var roleName = _config["Role Name"];
-            var roleName = _config.GetSection("Role Name").Value.ToString();
-
             string userId = Context.Message.MentionedUsers.First().Id.ToString();
             string guildId = Context.Guild.Id.ToString();
-            string roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName).Id.ToString();
+            string roleId = string.Empty;
+            try
+            {
+                roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == _roleName).Id.ToString();
+            }
+            catch
+            {
+                // If RoleId is not found - it can remain empty; Rest call will fail and throw its own exception
+            }
 
             await _myRest.PutAsync("guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
         }
@@ -62,27 +96,34 @@ namespace BirthdayBot.CommandModules
         [RequireGuild]
         public async Task CheckBirthdayAsync(string irrelevant)
         {
-            string birthday = "";
-            foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
+            if (Context.Message.MentionedUsers.Count == 0)
             {
-                if (pairIdBirthday["Id"] == Context.Message.MentionedUsers.First().Id.ToString())
-                {
-                    birthday = pairIdBirthday["Date"];
-                }
-            }
-
-            if (birthday == DateTime.Today.ToString("dd MMM"))
-            {
-                await AssignBirthdayAsync(irrelevant);
-                await ReplyAsync(Context.Message.MentionedUsers.First().Username + "'s birthday is today! Happy Birthday!");
+                await ReplyAsync(Context.User.Mention + ", you forgot to @mention a user in your request.");
                 return;
             }
 
-            await ReplyAsync(Context.Message.MentionedUsers.First().Username + "'s birthday is not today, it's on " + birthday + "...");
+            string username = Context.Message.MentionedUsers.First().Username;
+            string userId = Context.Message.MentionedUsers.First().Id.ToString();
+
+            string birthday = _config
+                .GetSection("Birthdays")
+                .Get<IConfigurationSection[]>()
+                .Select(pairIdBirthday => pairIdBirthday)
+                .Where(pairIdBirthday => pairIdBirthday["Id"] == userId)
+                .First()["Date"];
+
+            if (birthday == DateTime.Today.ToBirthdayFormat())
+            {
+                await AssignBirthdayAsync(irrelevant);
+                await ReplyAsync(username + "'s birthday is today! Happy Birthday!");
+                return;
+            }
+
+            await ReplyAsync(username + "'s birthday is not today, it's on " + birthday + "...");
         }
 
-        [Command("guilduser")]
-        [Summary("Get GuildUser via Rest")]
+        [Command("guilduser_discordlib")]
+        [Summary("Get GuildUser via Discord.NET Rest client")]
         [RequireGuild]
         public async Task GetGuildUserAsync(string irrelevant)
         {
@@ -92,14 +133,13 @@ namespace BirthdayBot.CommandModules
         }
 
 
-        [Command("birthdayrest")]
-        [Summary("Get GuildUser via Rest")]
+        [Command("birthday_discordlib")]
+        [Summary("Assign birthday role to @mentioned user via Discord.NET Rest client")]
         [RequireGuild]
         public async Task AssignRestBirthdayAsync(string irrelevant)
         {
             IGuildUser guildUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
-            var roleName = _config.GetSection("Role Name").Value.ToString();
-            IRole role = Context.Guild.Roles.First(sp_role => sp_role.Name == roleName);
+            IRole role = Context.Guild.Roles.First(sp_role => sp_role.Name == _roleName);
 
             await guildUser.AddRoleAsync(role);
         }
@@ -114,8 +154,7 @@ namespace BirthdayBot.CommandModules
         [Disabled]
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
-            var roleName = _config["Role Name"];
-            await user.AddRoleAsync(user.Guild.Roles.First(sp_role => sp_role.Name == roleName));
+            await user.AddRoleAsync(user.Guild.Roles.First(sp_role => sp_role.Name == _roleName));
         }
 
         /**
@@ -128,8 +167,7 @@ namespace BirthdayBot.CommandModules
         [Disabled]
         public async Task AssignBirthdayAsync(SocketUser user)
         {
-            var roleName = _config["Role Name"];
-            await (user as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == roleName));
+            await (user as SocketGuildUser).AddRoleAsync(Context.Guild.Roles.First(sp_role => sp_role.Name == _roleName));
         }
 
         /**

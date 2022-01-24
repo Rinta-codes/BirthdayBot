@@ -16,8 +16,10 @@ namespace BirthdayBot
 {
     public class BirthdayBot
     {
-        // Configuration path
+        // Configuration
         private static readonly string _configPath = "config.json";
+        public static readonly string _birthdayDateFormat = "dd MMM";
+
 
         // Prefix for log messages by source
         private static readonly string _socketLogPrefix = "[WebSocket]";

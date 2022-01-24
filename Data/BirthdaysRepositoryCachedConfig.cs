@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using BirthdayBot.Extensions;
 
 namespace BirthdayBot.Data
 {
@@ -17,9 +18,6 @@ namespace BirthdayBot.Data
     {
         private readonly IConfiguration _config;
 
-        private readonly string birthdayDateFormat = "dd MMM"; // Might change to read this from config
-                                                               // or mayhaps a hardcoded singleton
-
         public BirthdaysRepositoryCachedConfig(IConfiguration config)
         {
             _config = config;
@@ -33,7 +31,7 @@ namespace BirthdayBot.Data
 
             foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
             {
-                if (DateTime.TryParseExact(pairIdBirthday["Date"], birthdayDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+                if (pairIdBirthday["Date"].FromBirthdayFormat(out date))
                 {
                     id = pairIdBirthday["Id"];
 
@@ -43,7 +41,7 @@ namespace BirthdayBot.Data
                 }
                 else
                 {
-                    throw new FormatException("One or more Birthday Dates in the configuration file have incorrect format; Expected format: \"" + birthdayDateFormat + "\"");
+                    throw new FormatException("Could not parse one or more birthday dates from configuration. Did you use correct date format?");
                 }
             }
         }
