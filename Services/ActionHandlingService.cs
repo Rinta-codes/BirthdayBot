@@ -13,6 +13,9 @@ namespace BirthdayBot.Services
 {
     public class ActionHandlingService
     {
+        private readonly int _interval = Interval.SECOND * 10000; // For now this variable will store period (in
+                                                                // milliseconds) for how often Actions will be executed
+
         private readonly IConfiguration _config;
         private readonly RestService _myRest;
         private readonly DiscordSocketClient _client;
@@ -57,7 +60,7 @@ namespace BirthdayBot.Services
             _actions = new(_config, _client, _myRest, _birthdays);
             _repeatingActions = new();
 
-            _repeatingActions.Add((_timerFactory.CreateTimer(Interval.SECOND * 10), _actions.SetBirthdaysActionAsync));
+            _repeatingActions.Add((_timerFactory.CreateTimer(_interval), _actions.SetBirthdaysActionAsync));
             foreach (var action in _repeatingActions)
             {
                 action.timer.Elapsed += async (object sender, ElapsedEventArgs e) => await action.action.Invoke();
