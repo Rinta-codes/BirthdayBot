@@ -22,11 +22,9 @@ namespace BirthdayBot.Services
     public class RestService
     {
         private readonly HttpClient _client;
-        private readonly IConfiguration _config;
 
-        public RestService(IConfiguration config, IHttpClientFactory factory)
+        public RestService(IHttpClientFactory factory)
         {
-            _config = config;
             _client = factory.CreateClient("RestClient");
         }
 

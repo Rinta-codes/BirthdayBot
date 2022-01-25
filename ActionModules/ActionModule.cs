@@ -1,8 +1,9 @@
 ﻿using BirthdayBot.Data;
 using BirthdayBot.Services;
+using BirthdayBot.Configuration;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +16,13 @@ namespace BirthdayBot.ActionModules
      */
     public class ActionModule
     {
-        private readonly IConfiguration _config;
         private readonly IDiscordClient _client;
         private readonly RestService _myRest;
         private readonly IBirthdaysRepository _birthdays;
-        public ActionModule(IConfiguration config, DiscordSocketClient client, RestService myRest, IBirthdaysRepository birthdays)
+        private readonly IOptions<BirthdayConfiguration> _birthdayConfig;
+        public ActionModule(IOptions<BirthdayConfiguration> birthdayConfig, DiscordSocketClient client, RestService myRest, IBirthdaysRepository birthdays)
         {
-            _config = config;
+            _birthdayConfig = birthdayConfig;
             _client = client;
             _myRest = myRest;
             _birthdays = birthdays;
@@ -47,7 +48,7 @@ namespace BirthdayBot.ActionModules
 
             var guilds = (await _client.GetGuildsAsync()).ToList<IGuild>();
             var guildsEditable = guilds as ICollection<IGuild>;
-            var roleName = _config.GetSection("Role Name").Value.ToString();
+            var roleName = _birthdayConfig.Value.RoleName;
             string roleId;
             SocketTextChannel defaultChannel;
 

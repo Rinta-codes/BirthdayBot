@@ -5,9 +5,11 @@ using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using BirthdayBot.Configuration;
 
 /** 
  * Initialises the Bot, connects it to Discord, and hands it over to Command Handler service 
@@ -18,6 +20,7 @@ namespace BirthdayBot
     {
         // Configuration
         private static readonly string _configPath = "config.json";
+        private static readonly IConfiguration _config = GetConfig(_configPath);
         public static readonly string _birthdayDateFormat = "dd MMM";
 
 
@@ -99,17 +102,21 @@ namespace BirthdayBot
         {
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(GetConfig(_configPath))
+                .AddOptions()
+                    .Configure<ConnectionConfiguration>(connectionConfiguration => _config.Bind(connectionConfiguration))
+                    .Configure<CommandsConfiguration>(commandsConfiguration => _config.Bind(commandsConfiguration))
+                    .Configure<BirthdayConfiguration>(birthdayConfiguration => _config.Bind(birthdayConfiguration))
                 .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryCachedConfig>()
                 .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
-                .AddHttpClient("RestClient", client =>
+                .AddHttpClient("RestClient", (services, client) =>
                  {
                      client.BaseAddress = new Uri("https://discord.com/api/");
                      client.DefaultRequestHeaders.Clear();
-                     client.DefaultRequestHeaders.Add("Authorization", "Bot" + " " + GetConfig(_configPath)["Token"]);
+                     client.DefaultRequestHeaders.Add("Authorization", "Bot" + " " + services.GetRequiredService<IOptions<ConnectionConfiguration>>().Value.Token);
                      // TBU for header ("Content-Type", "application/json") // MediaTypeWithQualityHeaderValue("application/json")
                  }).Services
                 .AddSingleton<RestService>()

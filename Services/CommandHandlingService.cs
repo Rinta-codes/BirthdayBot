@@ -1,7 +1,8 @@
-﻿using Discord;
+﻿using BirthdayBot.Configuration;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
@@ -15,19 +16,19 @@ namespace BirthdayBot.Services
     public class CommandHandlingService
     {
         private readonly IServiceProvider _services;
-        private readonly IConfiguration _config;
+        private readonly IOptions<CommandsConfiguration> _commandsConfig;
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _client;
         private readonly string _prefix;
 
-        public CommandHandlingService(IServiceProvider services, IConfiguration config, CommandService commands, DiscordSocketClient client)
+        public CommandHandlingService(IServiceProvider services, IOptions<CommandsConfiguration> commandsConfig, CommandService commands, DiscordSocketClient client)
         {
             _services = services;
-            _config = config;
+            _commandsConfig = commandsConfig;
             _commands = commands;
             _client = client;
 
-            _prefix = _config["Prefix"]; // command prefix, such as ! or ~
+            _prefix = _commandsConfig.Value.Prefix; // command prefix, such as ! or ~
 
             // Hook into CommandExecuted event to print out / log command execution result
             _commands.CommandExecuted += CommandExecutedAsync;

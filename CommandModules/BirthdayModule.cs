@@ -1,10 +1,13 @@
 ﻿using BirthdayBot.Preconditions;
 using BirthdayBot.Services;
+using BirthdayBot.Configuration;
+using BirthdayBot.Data;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,16 +22,18 @@ namespace BirthdayBot.CommandModules
     {
         private readonly string _roleName; // This will have to be changed once different Role Name for different servers is supported
 
-        private readonly IConfiguration _config;
+        private readonly IOptions<BirthdayConfiguration> _birthdayConfig;
+        private readonly IBirthdaysRepository _birthdays;
         private readonly DiscordRestClient _clientRest;
         private readonly RestService _myRest;
-        public BirthdayModule(IConfiguration config, DiscordRestClient clientRest, RestService myRest)
+        public BirthdayModule(IOptions<BirthdayConfiguration> birthdayConfig, IBirthdaysRepository birthdays, DiscordRestClient clientRest, RestService myRest)
         {
-            _config = config;
+            _birthdayConfig = birthdayConfig;
+            _birthdays = birthdays;
             _clientRest = clientRest;
             _myRest = myRest;
 
-            _roleName = _config["Role Name"]; // _config.GetSection("Role Name").Value.ToString();
+            _roleName = _birthdayConfig.Value.RoleName;
         }
 
         /**
@@ -105,34 +110,16 @@ namespace BirthdayBot.CommandModules
             string username = Context.Message.MentionedUsers.First().Username;
             string userId = Context.Message.MentionedUsers.First().Id.ToString();
 
-            string birthday = "";
-            try
-            {
-                birthday = _config
-                        .GetSection("Birthdays")
-                        .Get<IConfigurationSection[]>()
-                        .Select(pairIdBirthday => pairIdBirthday)
-                        .Where(pairIdBirthday => pairIdBirthday["Id"] == userId)
-                        .First()["Date"];
-            }
-            catch
-            { 
-                // Do nothing
-            }
-
-            if (string.IsNullOrEmpty(birthday))
-            {
-                await ReplyAsync("I don't know when " + username + "'s birthday is.");
-            }
-            else if (birthday == DateTime.Today.ToBirthdayFormat())
+            if ((await _birthdays.LookupUsersByBirthday(DateTime.Today)).Exists(id => id == userId))
+                // If userId exists in the list of all users with birthday date == today...
             {
                 await AssignBirthdayAsync(irrelevant);
                 await ReplyAsync(username + "'s birthday is today! Happy Birthday!");
-                return;
             }
             else
             {
-                await ReplyAsync(username + "'s birthday is not today, it's on " + birthday + "...");
+                await ReplyAsync(username + "'s birthday is not today...");
+                // TBU: Perhaps add a way to print user's actual birthday date here
             }
         }
 

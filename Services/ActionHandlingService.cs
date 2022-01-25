@@ -1,7 +1,8 @@
 ﻿using BirthdayBot.ActionModules;
 using BirthdayBot.Data;
+using BirthdayBot.Configuration;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace BirthdayBot.Services
         private readonly int _interval = Interval.SECOND * 10000; // For now this variable will store period (in
                                                                 // milliseconds) for how often Actions will be executed
 
-        private readonly IConfiguration _config;
+        private readonly IOptions<BirthdayConfiguration> _birthdayConfig;
         private readonly RestService _myRest;
         private readonly DiscordSocketClient _client;
         private readonly TimerFactory _timerFactory;
@@ -28,17 +29,16 @@ namespace BirthdayBot.Services
                                        // this variable will be no longer needed
 
 
-        public ActionHandlingService(IServiceProvider services)
+        public ActionHandlingService(IOptions<BirthdayConfiguration> birthdayConfig, RestService myRest, DiscordSocketClient client, TimerFactory timerFactory, IBirthdaysRepository birthdays)
         {
             Console.WriteLine("Action Handler initializing...");
 
-            _config = services.GetRequiredService<IConfiguration>();
-            _myRest = services.GetRequiredService<RestService>();
-            _client = services.GetRequiredService<DiscordSocketClient>();
-            _timerFactory = services.GetRequiredService<TimerFactory>();
-            _birthdays = services.GetRequiredService<IBirthdaysRepository>();
+            _birthdayConfig = birthdayConfig;
+            _myRest = myRest;
+            _client = client;
+            _timerFactory = timerFactory;
+            _birthdays = birthdays;
 
-            // await AddActionsAsync();
             AddActionsTemp();
         }
 
@@ -49,15 +49,18 @@ namespace BirthdayBot.Services
          * 
          * I will also need async initialisation for when actions from ActionModule are loaded dynamically
          */
-        public async Task InitializeAsync() { }
+        public async Task InitializeAsync()
+        {
+            // await AddActionsAsync();
+        }
 
         /*
          * Placeholder method that directly initializes ActionModule and creates hardcoded Timer for SetBirthdayAction
          * To be replaced later with AddActionsAsync()
          */
-        public void AddActionsTemp()
+        private void AddActionsTemp()
         {
-            _actions = new(_config, _client, _myRest, _birthdays);
+            _actions = new(_birthdayConfig, _client, _myRest, _birthdays);
             _repeatingActions = new();
 
             _repeatingActions.Add((_timerFactory.CreateTimer(_interval), _actions.SetBirthdaysActionAsync));
