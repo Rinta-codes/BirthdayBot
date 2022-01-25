@@ -20,6 +20,7 @@ namespace BirthdayBot
     {
         // Configuration
         private static readonly string _configPath = "config.json";
+        private static readonly string _birthdaysPath = "birthdays.json";
         private static readonly IConfiguration _config = GetConfig(_configPath);
         public static readonly string _birthdayDateFormat = "dd MMM";
 
@@ -37,7 +38,7 @@ namespace BirthdayBot
             var socketClient = services.GetRequiredService<DiscordSocketClient>();
             var restClient = services.GetRequiredService<DiscordRestClient>();
             var commandService = services.GetRequiredService<CommandService>();
-            var config = services.GetRequiredService<IConfiguration>();
+            var connectionConfig = services.GetRequiredService<IOptions<ConnectionConfiguration>>();
             var birthdays = services.GetRequiredService<IBirthdaysRepository>();
 
             // Hook into log events for clients and CommandService
@@ -50,8 +51,8 @@ namespace BirthdayBot
             restClient.LoggedIn += () => BirthdayBot.ReadyAsync(_restLogPrefix);
 
             // Configure login details for the clients
-            await socketClient.LoginAsync(TokenType.Bot, config["Token"]);
-            await restClient.LoginAsync(TokenType.Bot, config["Token"]);
+            await socketClient.LoginAsync(TokenType.Bot, connectionConfig.Value.Token);
+            await restClient.LoginAsync(TokenType.Bot, connectionConfig.Value.Token);
 
             // Start up the WebSocket connection
             // Will immediately return after being called, initialising the connection on another thread
@@ -101,7 +102,7 @@ namespace BirthdayBot
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                .AddSingleton<IConfiguration>(GetConfig(_configPath))
+                .AddSingleton<IConfiguration>(GetConfig(_birthdaysPath))
                 .AddOptions()
                     .Configure<ConnectionConfiguration>(connectionConfiguration => _config.Bind(connectionConfiguration))
                     .Configure<CommandsConfiguration>(commandsConfiguration => _config.Bind(commandsConfiguration))
