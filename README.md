@@ -22,37 +22,16 @@ Implementation-wise, it showcases the following and more:
 *use "help" command to get most current list of commands*  
   
 Potentially outdated:  
-  
-*beep*  
-Simple interaction to test that the Bot is up.  
-  
-*good bot*  
-Be polite to your Bot.  
-  
-*thank you bot*  
-Say "thank you" to your Bot.  
-  
-*birthdayme*  
-Assign "Birthday Cake" role to command caller.  
-  
-*birthday*  
-Assign configured birthday role to @mentioned user.  
-Only the first mentioned user will be processed.  
-  
-*birthdaycheck*  
-If @mentioned user has a birthday - assign configured birthday role.  
-Only the first mentioned user will be processed.  
-  
-*guilduser_discordlib*  
-Get GuildUser via Discord.NET Rest client  
-  
-*birthday_discordlib*  
-Assign birthday role to @mentioned user via Discord.NET Rest client  
-  
-*help*  
-Lists available commands and their descriptions.  
-Ignores disabled commands.  
-  
+*beep* - Simple interaction to test that the Bot is up  
+*good bot* - Be polite to your Bot  
+*thank you bot* - Say "thank you" to your Bot  
+*birthdayme* - Assign "Birthday Cake" role to command caller  
+*birthday* - Assign configured birthday role to @mentioned user  
+*birthdaycheck* - If @mentioned user has a birthday - assign configured birthday role  
+*guilduser_discordlib* - Get GuildUser via Discord.NET Rest client  
+*birthday_discordlib* - Assign birthday role to @mentioned user via Discord.NET Rest client  
+*help* - Lists available commands and their descriptions.  
+   
 **Configuration**  
   
 Create config.json file in main folder with the following content:  
@@ -60,13 +39,13 @@ Create config.json file in main folder with the following content:
 {  
     "Token": "",  
     "Prefix": "",  
-    "Role Name": ""  
+    "RoleName": ""  
 }  
 ```  
   
 Token - Bot's Token  
 Prefix - command prefix, can be empty or a string  
-Role Name - name of the birthday role  
+RoleName - name of the birthday role  
   
 Create birthdays.json file in main folder with the following content:  
 ```json  
