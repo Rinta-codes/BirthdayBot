@@ -105,21 +105,35 @@ namespace BirthdayBot.CommandModules
             string username = Context.Message.MentionedUsers.First().Username;
             string userId = Context.Message.MentionedUsers.First().Id.ToString();
 
-            string birthday = _config
-                .GetSection("Birthdays")
-                .Get<IConfigurationSection[]>()
-                .Select(pairIdBirthday => pairIdBirthday)
-                .Where(pairIdBirthday => pairIdBirthday["Id"] == userId)
-                .First()["Date"];
+            string birthday = "";
+            try
+            {
+                birthday = _config
+                        .GetSection("Birthdays")
+                        .Get<IConfigurationSection[]>()
+                        .Select(pairIdBirthday => pairIdBirthday)
+                        .Where(pairIdBirthday => pairIdBirthday["Id"] == userId)
+                        .First()["Date"];
+            }
+            catch
+            { 
+                // Do nothing
+            }
 
-            if (birthday == DateTime.Today.ToBirthdayFormat())
+            if (string.IsNullOrEmpty(birthday))
+            {
+                await ReplyAsync("I don't know when " + username + "'s birthday is.");
+            }
+            else if (birthday == DateTime.Today.ToBirthdayFormat())
             {
                 await AssignBirthdayAsync(irrelevant);
                 await ReplyAsync(username + "'s birthday is today! Happy Birthday!");
                 return;
             }
-
-            await ReplyAsync(username + "'s birthday is not today, it's on " + birthday + "...");
+            else
+            {
+                await ReplyAsync(username + "'s birthday is not today, it's on " + birthday + "...");
+            }
         }
 
         [Command("guilduser_discordlib")]
