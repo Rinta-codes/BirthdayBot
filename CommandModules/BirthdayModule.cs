@@ -42,7 +42,7 @@ namespace BirthdayBot.CommandModules
 
         [Command("birthdayme")]
         [Summary("Assign \"Birthday Cake\" role to command caller.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         public async Task AssignBirthdayAsync() // Duplicate code can be removed once AssignBirthdayAsync(string) 
                                                 // is adjusted to AssignBirthdayAsync(IUser) (currently won't work)
                 
@@ -65,7 +65,7 @@ namespace BirthdayBot.CommandModules
         [Command("birthday")]
         [Summary("Assign configured birthday role to @mentioned user.\n" +
                 "Only the first mentioned user will be processed.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         public async Task AssignBirthdayAsync(string irrelevant) // Not the most graceful circumvention of Discord.NET
                                                                  // IUser TypeReader, which cannot be overriden due to
                                                                  // bug https://github.com/discord-net/Discord.Net/issues/1485
@@ -93,7 +93,7 @@ namespace BirthdayBot.CommandModules
         [Command("birthdaycheck")]
         [Summary("If @mentioned user has a birthday - assign configured birthday role.\n" +
                 "Only the first mentioned user will be processed.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         public async Task CheckBirthdayAsync(string irrelevant)
         {
             if (Context.Message.MentionedUsers.Count == 0)
@@ -138,7 +138,7 @@ namespace BirthdayBot.CommandModules
 
         [Command("guilduser_discordlib")]
         [Summary("Get GuildUser via Discord.NET Rest client")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         public async Task GetGuildUserAsync(string irrelevant)
         {
             IGuildUser testUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
@@ -149,7 +149,7 @@ namespace BirthdayBot.CommandModules
 
         [Command("birthday_discordlib")]
         [Summary("Assign birthday role to @mentioned user via Discord.NET Rest client")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         public async Task AssignRestBirthdayAsync(string irrelevant)
         {
             IGuildUser guildUser = await _clientRest.GetGuildUserAsync(Context.Guild.Id, Context.Message.MentionedUsers.First().Id);
@@ -164,7 +164,7 @@ namespace BirthdayBot.CommandModules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         [Disabled]
         public async Task AssignBirthdayAsync(SocketGuildUser user)
         {
@@ -177,7 +177,7 @@ namespace BirthdayBot.CommandModules
          */
         [Command("birthday_deprecated")]
         [Summary("Assign configured birthday role to @mentioned user.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         [Disabled]
         public async Task AssignBirthdayAsync(SocketUser user)
         {
@@ -190,7 +190,7 @@ namespace BirthdayBot.CommandModules
         */
         [Command("guildusers_deprecated")]
         [Summary("Retrieve a full list of server users.")]
-        [RequireGuild]
+        [RequireContext(ContextType.Guild)]
         [Disabled]
         public async Task GetGuildUsersAsync()
         {

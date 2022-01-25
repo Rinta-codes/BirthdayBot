@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace BirthdayBot.Preconditions
 {
-    public class Disabled : PreconditionAttribute
+    public class DisabledAttribute : PreconditionAttribute
     {
-        public Disabled() { }
+        public DisabledAttribute() { }
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
