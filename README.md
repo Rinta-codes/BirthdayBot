@@ -2,21 +2,21 @@
   
 **Summary**  
   
-BirthdayBot is a Discord chat bot built using Discord.Net library.  
+BirthdayBot is a Discord chat bot built using [Discord.Net library](https://github.com/discord-net/Discord.Net).  
 This is foremost a performative project, and therefore design decisions and implementation approaches are often deliberately chosen for the sake of experimenting with different libraries and design patterns.    
   
 Functionally, it is intended to assign server-specific birthday role to the users on their birthdays.  
   
 Implementation-wise, it showcases the following and more:  
-- Comfortable use of a reasonably sized external library (Discord.NET) and its many functionalities  
+- Comfortable use of a reasonably sized external library ([Discord.NET](https://github.com/discord-net/Discord.Net)) and its many functionalities  
 - Dependency Injection via ServiceCollection container, including:   
   - Options pattern (IOptions)  
   - Factories (HttpClient)  
-- Manual Factory implementation (TimerFactory)  
-- Manual Rest API use (RestService)  
-- Manual data storage implementation (IBirthdayRepository / BirthdayRepositoryCached)  
+- Manual Factory implementation ([TimerFactory](../blob/master/Services/TimerFactory.cs))  
+- Manual Rest API use ([RestService](../blob/master/Services/RestService.cs)))  
+- Manual data storage implementation ([IBirthdayRepository / BirthdayRepositoryCached](../tree/master/Data))  
 - Expanded functionality over what the external library provides (scheduled / repeated bot actions via ActionHandlingService)  
-- Probably some other stuff; Look at the code  
+- Etc.  
   
 **Bot Commands**  
 *use "help" command to get most current list of commands*  
