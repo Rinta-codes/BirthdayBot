@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Classes to hold different parts of bot config
+/// </summary>
 namespace BirthdayBot.Configuration
 {
-    /// <summary>
-    /// Classes to hold different parts of bot config
-    /// </summary>
     public class ConnectionConfiguration
     {
         public ConnectionConfiguration()

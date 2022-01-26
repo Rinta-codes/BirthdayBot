@@ -32,6 +32,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\Debug\net5.0\birthdays.json" />
     <None Include="bin\Debug\net5.0\config.json" />
   </ItemGroup>
   <ItemGroup>
