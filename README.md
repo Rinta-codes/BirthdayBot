@@ -14,7 +14,7 @@ Implementation-wise, it showcases the following and more:
   - Factories (HttpClient)  
 - Manual Factory implementation ([TimerFactory](Services/TimerFactory.cs))  
 - Manual Rest API use ([RestService](Services/RestService.cs))  
-- Manual data storage implementation ([IBirthdayRepository / BirthdayRepositoryCached](.../tree/master/Data))  
+- Manual data storage implementation ([IBirthdayRepository / BirthdayRepositoryCached](../../tree/master/Data))  
 - Expanded functionality over what the external library provides (scheduled / repeated bot actions via ActionHandlingService)  
 - Etc.  
   
