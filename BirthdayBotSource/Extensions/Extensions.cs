@@ -8,7 +8,7 @@ namespace BirthdayBot.Extensions
     {
         public static string ToBirthdayFormat(this DateTime BirthdayDate)
         {
-            return BirthdayDate.ToString(BirthdayBot._birthdayDateFormat);
+            return BirthdayDate.ToString(Constants._birthdayDateFormat);
         }
     }
 
@@ -16,7 +16,7 @@ namespace BirthdayBot.Extensions
     {
         public static bool FromBirthdayFormat(this string BirthdayDate, out DateTime date)
         {
-            return DateTime.TryParseExact(BirthdayDate, BirthdayBot._birthdayDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+            return DateTime.TryParseExact(BirthdayDate, Constants._birthdayDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
         }
     }
 }

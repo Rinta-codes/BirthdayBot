@@ -16,14 +16,17 @@ using BirthdayBot.Configuration;
  */
 namespace BirthdayBot
 {
+    public class Constants
+    {
+        public static readonly string _birthdayDateFormat = "dd MMM";
+    }
+
     public class BirthdayBot
     {
         // Configuration
         private static readonly string _configPath = "config.json";
         private static readonly string _birthdaysPath = "birthdays.json";
         private static readonly IConfiguration _config = GetConfig(_configPath);
-        public static readonly string _birthdayDateFormat = "dd MMM";
-
 
         // Prefix for log messages by source
         private static readonly string _socketLogPrefix = "[WebSocket]";

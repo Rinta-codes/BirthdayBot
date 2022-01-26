@@ -14,7 +14,7 @@ namespace BirthdayBot.Data
      * 
      * * Will require minor changes when config is no longer part of DI container
      */
-    class BirthdaysRepositoryCachedConfig : BirthdaysRepositoryCached
+    public class BirthdaysRepositoryCachedConfig : BirthdaysRepositoryCached
     {
         private readonly IConfiguration _config;
 
