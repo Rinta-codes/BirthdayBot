@@ -12,9 +12,9 @@ Implementation-wise, it showcases the following and more:
 - Dependency Injection via ServiceCollection container, including:   
   - Options pattern (IOptions)  
   - Factories (HttpClient)  
-- Manual Factory implementation ([TimerFactory](../blob/master/Services/TimerFactory.cs))  
-- Manual Rest API use ([RestService](../blob/master/Services/RestService.cs)))  
-- Manual data storage implementation ([IBirthdayRepository / BirthdayRepositoryCached](../tree/master/Data))  
+- Manual Factory implementation ([TimerFactory](Services/TimerFactory.cs))  
+- Manual Rest API use ([RestService](Services/RestService.cs))  
+- Manual data storage implementation ([IBirthdayRepository / BirthdayRepositoryCached](.../tree/master/Data))  
 - Expanded functionality over what the external library provides (scheduled / repeated bot actions via ActionHandlingService)  
 - Etc.  
   
