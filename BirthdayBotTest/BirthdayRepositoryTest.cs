@@ -21,7 +21,7 @@ namespace BirthdayBotTest
                 [$"Birthdays:1:Date"]   = "26 Jan",
             };
 
-            DateTime date = DateTime.Today;
+            DateTime date = DateTime.Parse("26 Jan");
 
             List<string> expectedUsers = new()
             {
