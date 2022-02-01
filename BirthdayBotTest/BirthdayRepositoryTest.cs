@@ -84,12 +84,40 @@ namespace BirthdayBotTest
 
         /// <summary>
         /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
-        /// Input: Empty dataset
+        /// Input: Empty dataset; No exception expected
         /// </summary>
         [TestMethod]
         public async Task LookupUsersByBirthdayTest3()
         {
             Dictionary<string, string> testData = new() {};
+
+            DateTime date = DateTime.Parse("26 Jan");
+
+            List<string> expectedUsers = new() {};
+
+            IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
+            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
+            await birthdays.LoadUserBirthdaysAsync();
+
+            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+
+            CollectionAssert.AreEqual(expectedUsers, actualUsers);
+        }
+
+        /// <summary>
+        /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
+        /// Input: Normal data; Unsorted; Looking up a date that's not in the dataset; No exception expected
+        /// </summary>
+        [TestMethod]
+        public async Task LookupUsersByBirthdayTest4()
+        {
+            Dictionary<string, string> testData = new()
+            {
+                [$"Birthdays:0:Id"] = "1234567890",
+                [$"Birthdays:0:Date"] = "05 Apr",
+                [$"Birthdays:1:Id"] = "0987654321",
+                [$"Birthdays:1:Date"] = "17 Dec",
+            };
 
             DateTime date = DateTime.Parse("26 Jan");
 
