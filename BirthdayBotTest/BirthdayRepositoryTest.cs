@@ -11,8 +11,8 @@ namespace BirthdayBotTest
     public class BirthdayRepositoryTest
     {
         /// <summary>
-        /// Test for IBirthdayRepository.LookUpUserByBirthday()
-        /// Input: Normal data; Unsorted; Expected result is not first entry
+        /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
+        /// Input: Normal data; Unsorted; Single result expected; Expected result is not first entry
         /// </summary>
         [TestMethod]
         public async Task LookupUsersByBirthdayTest1()
@@ -42,11 +42,52 @@ namespace BirthdayBotTest
         }
 
         /// <summary>
-        /// Test for IBirthdayRepository.LookUpUserByBirthday()
-        /// Input: Empty dataset
+        /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
+        /// Input: Normal data; Unsorted; Multiple results expected
         /// </summary>
         [TestMethod]
         public async Task LookupUsersByBirthdayTest2()
+        {
+            Dictionary<string, string> testData = new()
+            {
+                [$"Birthdays:0:Id"] = "12345",
+                [$"Birthdays:0:Date"] = "02 Aug",
+                [$"Birthdays:1:Id"] = "23456",
+                [$"Birthdays:1:Date"] = "01 Aug", // Same month, different date
+                [$"Birthdays:2:Id"] = "45678",
+                [$"Birthdays:2:Date"] = "02 Aug",
+                [$"Birthdays:3:Id"] = "56789",
+                [$"Birthdays:3:Date"] = "02 Jan", // Same date, different month
+                [$"Birthdays:4:Id"] = "67890",
+                [$"Birthdays:4:Date"] = "02 Aug",
+                [$"Birthdays:5:Id"] = "78901",
+                [$"Birthdays:5:Date"] = "08 Feb", // An odd "08/02" in a crowd of "02/08"s
+            };
+
+            DateTime date = DateTime.Parse("02 Aug");
+
+            List<string> expectedUsers = new()
+            {
+                "12345",
+                "45678",
+                "67890"
+            };
+
+            IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
+            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
+            await birthdays.LoadUserBirthdaysAsync();
+
+            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+
+            CollectionAssert.AreEqual(expectedUsers, actualUsers);
+        }
+
+        /// <summary>
+        /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
+        /// Input: Empty dataset
+        /// </summary>
+        [TestMethod]
+        public async Task LookupUsersByBirthdayTest3()
         {
             Dictionary<string, string> testData = new() {};
 
