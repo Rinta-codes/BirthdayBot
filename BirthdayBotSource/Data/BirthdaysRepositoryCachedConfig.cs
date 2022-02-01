@@ -29,7 +29,12 @@ namespace BirthdayBot.Data
             DateTime date = DateTime.Today;
             UserId id = new(String.Empty);
 
-            foreach (var pairIdBirthday in _config.GetSection("Birthdays").Get<IConfigurationSection[]>())
+            var birthdaysRawData = _config.GetSection("Birthdays").Get<IConfigurationSection[]>();
+
+            if (birthdaysRawData == null)
+                return;
+
+            foreach (var pairIdBirthday in birthdaysRawData)
             {
                 if (pairIdBirthday["Date"].FromBirthdayFormat(out date))
                 {

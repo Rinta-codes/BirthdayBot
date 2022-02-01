@@ -10,6 +10,10 @@ namespace BirthdayBotTest
     [TestClass]
     public class BirthdayRepositoryTest
     {
+        /// <summary>
+        /// Test for IBirthdayRepository.LookUpUserByBirthday()
+        /// Input: Normal data; Unsorted; Expected result is not first entry
+        /// </summary>
         [TestMethod]
         public async Task LookupUsersByBirthdayTest1()
         {
@@ -27,6 +31,28 @@ namespace BirthdayBotTest
             {
                 "0987654321"
             };
+
+            IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
+            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
+            await birthdays.LoadUserBirthdaysAsync();
+
+            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+
+            CollectionAssert.AreEqual(expectedUsers, actualUsers);
+        }
+
+        /// <summary>
+        /// Test for IBirthdayRepository.LookUpUserByBirthday()
+        /// Input: Empty dataset
+        /// </summary>
+        [TestMethod]
+        public async Task LookupUsersByBirthdayTest2()
+        {
+            Dictionary<string, string> testData = new() {};
+
+            DateTime date = DateTime.Parse("26 Jan");
+
+            List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
             BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
