@@ -5,15 +5,16 @@ using System.Threading.Tasks;
 namespace BirthdayBot.Data
 {
     using UserId = String;
+    using ServerId = String;
 
     public interface IBirthdaysRepository
     {
-        public Task AddUserBirthdayAsync(string userId, DateTime birthdayDate);
+        public Task AddUserBirthdayAsync(Birthday birthday);
 
-        public Task DeleteUserBirthdayAsync(string userId);
+        public Task DeleteUserBirthdayAsync(Birthday birthday);
 
-        public Task AdjustUserBirthdayAsync(string userId, DateTime newBirthdayDate);
+        public Task AdjustUserBirthdayAsync(Birthday birthday);
 
-        public Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate);
+        public Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate, ServerId serverId = null);
     }
 }

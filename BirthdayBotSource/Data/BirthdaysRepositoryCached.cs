@@ -6,6 +6,7 @@ using System.Linq;
 namespace BirthdayBot.Data
 {
     using UserId = String;
+    using ServerId = String;
 
     /*
      * This abstract class implements cache storage of birthday data 
@@ -14,12 +15,11 @@ namespace BirthdayBot.Data
      * Various ways of loading initial data (from config, from database, etc.) 
      * and saving changed data are supplied by concrete classes derived from this one.
      */
-    public abstract class BirthdaysRepositoryCached : IBirthdaysRepository
+    public abstract class BirthdaysRepositoryCached : IBirthdaysRepositoryCached
     {
         // Since I will need to look up Users from Birthdays, which is a
-        // many-to-one relation, List of tuples makes more sense than a
-        // Dictionary
-        private List<(string UserId, DateTime BirthdayDate)> _birthdaysCache = new();
+        // many-to-one relation, List makes more sense than a Dictionary
+        private List<Birthday> _birthdaysCache = new();
 
         // Separately stored list of User IDs for fast duplicate check
         private HashSet<string> userIdsCache = new();
@@ -32,42 +32,40 @@ namespace BirthdayBot.Data
                 return false;
         }
 
-        protected void AddUserBirthdayInternalStorage(string userId, DateTime birthdayDate)
+        protected void AddUserBirthdayInternalStorage(Birthday birthday)
         {
-            _birthdaysCache.Add((userId, birthdayDate));
-            userIdsCache.Add(userId);
+            _birthdaysCache.Add(birthday);
+            userIdsCache.Add(birthday.UserId);
         }
 
-        public async Task AddUserBirthdayAsync(string userId, DateTime birthdayDate)
+        public async Task AddUserBirthdayAsync(Birthday birthday)
         {
-            if (IsUserDuplicate(userId))
-                throw new ArgumentException($"Failed to add a new User Birthday. The following UserId already exists: {userId}");
+            if (IsUserDuplicate(birthday.UserId))
+                throw new ArgumentException($"Failed to add a new User Birthday. The following UserId already exists: {birthday.UserId}");
             else
             {
-                AddUserBirthdayInternalStorage(userId, birthdayDate);
+                AddUserBirthdayInternalStorage(birthday);
                 await SaveChangesAsync();
             }
         }
 
-        public async Task DeleteUserBirthdayAsync(string userId) // TBU
+        public async Task DeleteUserBirthdayAsync(Birthday birthday) // TBU
         {
             // TBU
-            await SaveChangesAsync();
         }
 
-        public async Task AdjustUserBirthdayAsync(string userId, DateTime newBirthdayDate) // TBU
+        public async Task AdjustUserBirthdayAsync(Birthday birthday) // TBU
         {
             // TBU
-            await SaveChangesAsync();
         }
 
-        public async Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate)
+        public async Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate, ServerId serverId = null)
         {
             List<UserId> users = _birthdaysCache
-                .Where(pairIdBirthday => pairIdBirthday.BirthdayDate.Date == birthdayDate.Date)
-                .Select(pairIdBirthday => pairIdBirthday.UserId)
+                .Where(birthday => birthday.BirthdayDate.Date == birthdayDate.Date
+                                && birthday.ServerId == serverId)
+                .Select(birthday => birthday.UserId)
                 .ToList<UserId>();
-
 
             return users;
         }

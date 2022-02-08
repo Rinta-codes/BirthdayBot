@@ -13,23 +13,23 @@ namespace BirthdayBot.Data
      * when birthday data is stored in database
      * without use of cache
      */
-    class BirthdaysRepositoryDatabase : IBirthdaysRepository
-    {
-        public async Task AddUserBirthdayAsync(string userId, DateTime birthdayDate)
-        { }
+    //class BirthdaysRepositoryDatabase : IBirthdaysRepository
+    //{
+    //    public async Task AddUserBirthdayAsync(string userId, DateTime birthdayDate)
+    //    { }
 
-        public async Task DeleteUserBirthdayAsync(string userId)
-        { }
+    //    public async Task DeleteUserBirthdayAsync(string userId)
+    //    { }
 
-        public async Task AdjustUserBirthdayAsync(string userId, DateTime newBirthdayDate)
-        { }
+    //    public async Task AdjustUserBirthdayAsync(string userId, DateTime newBirthdayDate)
+    //    { }
 
-        public async Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate)
-        {
-            List<UserId> users = new();
+    //    public async Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate)
+    //    {
+    //        List<UserId> users = new();
 
-            return users;
-        }
+    //        return users;
+    //    }
 
-    }
+    //}
 }

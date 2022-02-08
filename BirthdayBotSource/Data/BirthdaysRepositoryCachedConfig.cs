@@ -40,7 +40,7 @@ namespace BirthdayBot.Data
                 {
                     id = pairIdBirthday["Id"];
 
-                    AddUserBirthdayInternalStorage(id, date);
+                    AddUserBirthdayInternalStorage(new Birthday(id, date));
 
                     Console.WriteLine($"Birthday loaded: {pairIdBirthday["Id"]} - {date}");
                 }
