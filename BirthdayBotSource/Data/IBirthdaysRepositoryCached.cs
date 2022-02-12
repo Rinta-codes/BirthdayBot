@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace BirthdayBot.Data
 {
-    interface IBirthdaysRepositoryCached : IBirthdaysRepository
+    public interface IBirthdaysRepositoryCached : IBirthdaysRepository
     {
-        public Task SaveChangesAsync();
+        public Task LoadFromSourceAsync();
+
+        public Task SaveToSourceAsync();
     }
 }

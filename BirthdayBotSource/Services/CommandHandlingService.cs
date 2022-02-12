@@ -3,7 +3,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -74,7 +73,7 @@ namespace BirthdayBot.Services
             // HasStringPrefix checks for prefix at the start of received message and adjusts offset accordingly
             // Currently if prefix is empty - we process all messages as commands
             if (!String.IsNullOrEmpty(_prefix) && !message.HasStringPrefix(_prefix, ref prefixOffset))
-                    return;
+                return;
 
             // Executes command if one is found that matches message context
             await _commands.ExecuteAsync(context, prefixOffset, _services);

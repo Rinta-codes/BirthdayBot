@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -43,7 +42,7 @@ namespace BirthdayBot.Services
                     Console.WriteLine($"[{this.GetType().Name}] PUT execution failed for: {requestUri}; Response Message: {responseString}");
                     throw new HttpRequestException($"PUT execution failed for: {requestUri}");
                 }
-                
+
                 Console.WriteLine($"[{this.GetType().Name}] PUT executed. Response Message: {responseString}");
             }
             catch (Exception e)

@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace BirthdayBot.Data
 {
-    using UserId = String;
     using ServerId = String;
+    using UserId = String;
 
     public interface IBirthdaysRepository
     {
@@ -15,6 +15,6 @@ namespace BirthdayBot.Data
 
         public Task AdjustUserBirthdayAsync(Birthday birthday);
 
-        public Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate, ServerId serverId = null);
+        public Task<List<UserId>> LookupUsersByBirthdayAsync(DateTime birthdayDate, ServerId serverId = null);
     }
 }

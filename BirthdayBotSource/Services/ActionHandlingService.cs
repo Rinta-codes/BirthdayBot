@@ -1,9 +1,8 @@
 ﻿using BirthdayBot.ActionModules;
-using BirthdayBot.Data;
 using BirthdayBot.Configuration;
+using BirthdayBot.Data;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -15,7 +14,7 @@ namespace BirthdayBot.Services
     public class ActionHandlingService
     {
         private readonly int _interval = Interval.SECOND * 10000; // For now this variable will store period (in
-                                                                // milliseconds) for how often Actions will be executed
+                                                                  // milliseconds) for how often Actions will be executed
 
         private readonly IOptions<BirthdayConfiguration> _birthdayConfig;
         private readonly RestService _myRest;

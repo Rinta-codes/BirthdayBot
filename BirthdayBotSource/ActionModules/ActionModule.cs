@@ -1,6 +1,6 @@
-﻿using BirthdayBot.Data;
+﻿using BirthdayBot.Configuration;
+using BirthdayBot.Data;
 using BirthdayBot.Services;
-using BirthdayBot.Configuration;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
@@ -38,7 +38,7 @@ namespace BirthdayBot.ActionModules
         {
             Console.WriteLine("[SetBirthdaysAction] Execution has began.");
 
-            List<string> todaysBirthdays = new(await _birthdays.LookupUsersByBirthday(DateTime.Today));
+            List<string> todaysBirthdays = new(await _birthdays.LookupUsersByBirthdayAsync(DateTime.Today));
 
             if (todaysBirthdays.Count() == 0)
             {
@@ -90,7 +90,7 @@ namespace BirthdayBot.ActionModules
                         // Add role (by id) to the user (by id) - requires no IRole or IUser objects
                         await _myRest.PutAsync("guilds/" + guild.Id + "/members/" + userId + "/roles/" + roleId, null);
                     }
-                    catch (Exception e) 
+                    catch (Exception e)
                     {
                         // if PUT failed to execute - birthday assignment can be handled by admin
                         // No need to crash the bot for this
@@ -100,7 +100,7 @@ namespace BirthdayBot.ActionModules
 
                     // When using @mention by User Id in guild channel, user's Nickname will be substituted in automatically
                     await defaultChannel.SendMessageAsync($"<@{userId}> has a birthday today! Happy Birthday!");
-                 }
+                }
             }
 
             Console.WriteLine($"[{DateTime.Now.ToString()}] [SetBirthdaysAction] Execution completed. {todaysBirthdays.Count()} birthdays detected.");

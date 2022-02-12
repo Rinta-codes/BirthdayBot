@@ -1,17 +1,15 @@
-﻿using BirthdayBot.Preconditions;
-using BirthdayBot.Services;
-using BirthdayBot.Configuration;
+﻿using BirthdayBot.Configuration;
 using BirthdayBot.Data;
+using BirthdayBot.Preconditions;
+using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BirthdayBot.Extensions;
 
 namespace BirthdayBot.CommandModules
 {
@@ -50,7 +48,7 @@ namespace BirthdayBot.CommandModules
         [RequireContext(ContextType.Guild)]
         public async Task AssignBirthdayAsync() // Duplicate code can be removed once AssignBirthdayAsync(string) 
                                                 // is adjusted to AssignBirthdayAsync(IUser) (currently won't work)
-                
+
         {
             string userId = Context.User.Id.ToString();
             string guildId = Context.Guild.Id.ToString();
@@ -59,13 +57,13 @@ namespace BirthdayBot.CommandModules
             {
                 roleId = Context.Guild.Roles.First(sp_role => sp_role.Name == _roleName).Id.ToString();
             }
-            catch 
-            { 
+            catch
+            {
                 // If RoleId is not found - it can remain empty; Rest call will fail and throw its own exception
             }
 
             await _myRest.PutAsync("guilds/" + guildId + "/members/" + userId + "/roles/" + roleId, null);
-            }
+        }
 
         [Command("birthday")]
         [Summary("Assign configured birthday role to @mentioned user.\n" +
@@ -110,8 +108,8 @@ namespace BirthdayBot.CommandModules
             string username = Context.Message.MentionedUsers.First().Username;
             string userId = Context.Message.MentionedUsers.First().Id.ToString();
 
-            if ((await _birthdays.LookupUsersByBirthday(DateTime.Today)).Exists(id => id == userId))
-                // If userId exists in the list of all users with birthday date == today...
+            if ((await _birthdays.LookupUsersByBirthdayAsync(DateTime.Today)).Exists(id => id == userId))
+            // If userId exists in the list of all users with birthday date == today...
             {
                 await AssignBirthdayAsync(irrelevant);
                 await ReplyAsync(username + "'s birthday is today! Happy Birthday!");

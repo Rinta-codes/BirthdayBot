@@ -33,10 +33,10 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
-            await birthdays.LoadUserBirthdaysAsync();
+            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            await birthdays.LoadFromSourceAsync();
 
-            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+            var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
 
             CollectionAssert.AreEqual(expectedUsers, actualUsers);
         }
@@ -74,10 +74,10 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
-            await birthdays.LoadUserBirthdaysAsync();
+            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            await birthdays.LoadFromSourceAsync();
 
-            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+            var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
 
             CollectionAssert.AreEqual(expectedUsers, actualUsers);
         }
@@ -96,10 +96,10 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
-            await birthdays.LoadUserBirthdaysAsync();
+            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            await birthdays.LoadFromSourceAsync();
 
-            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+            var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
 
             CollectionAssert.AreEqual(expectedUsers, actualUsers);
         }
@@ -124,10 +124,10 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryCachedConfig birthdays = new(testConfig);
-            await birthdays.LoadUserBirthdaysAsync();
+            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            await birthdays.LoadFromSourceAsync();
 
-            var actualUsers = await birthdays.LookupUsersByBirthday(date);
+            var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
 
             CollectionAssert.AreEqual(expectedUsers, actualUsers);
         }

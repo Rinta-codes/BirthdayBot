@@ -1,5 +1,4 @@
-﻿using BirthdayBot.Preconditions;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using System.Threading.Tasks;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using BirthdayBot;
 using System.Globalization;
 
 namespace BirthdayBot.Extensions

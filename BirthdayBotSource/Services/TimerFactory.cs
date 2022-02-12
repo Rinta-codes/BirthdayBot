@@ -23,7 +23,7 @@ namespace BirthdayBot.Services
     {
         private Timer timer;
 
-        public TimerWrapper(int periodInMilliseconds = Interval.DAY) 
+        public TimerWrapper(int periodInMilliseconds = Interval.DAY)
         {
             timer = new Timer(periodInMilliseconds);
         }

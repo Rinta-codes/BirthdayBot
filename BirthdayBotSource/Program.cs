@@ -1,15 +1,15 @@
-﻿using BirthdayBot.Data;
+﻿using BirthdayBot.Configuration;
+using BirthdayBot.Data;
 using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
-using BirthdayBot.Configuration;
 
 /** 
  * Initialises the Bot, connects it to Discord, and hands it over to Command Handler service 
@@ -62,8 +62,8 @@ namespace BirthdayBot
             await socketClient.StartAsync();
 
             // Load birthdays data into cache, if it is required
-            if (birthdays is BirthdaysRepositoryCached birthdaysWithCache)
-                await birthdaysWithCache.LoadUserBirthdaysAsync();
+            if (birthdays is IBirthdaysRepositoryCached birthdaysWithCache)
+                await birthdaysWithCache.LoadFromSourceAsync();
 
             // Initialize CommandHandler and ActionHandler services
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
@@ -110,7 +110,7 @@ namespace BirthdayBot
                     .Configure<ConnectionConfiguration>(connectionConfiguration => _config.Bind(connectionConfiguration))
                     .Configure<CommandsConfiguration>(commandsConfiguration => _config.Bind(commandsConfiguration))
                     .Configure<BirthdayConfiguration>(birthdayConfiguration => _config.Bind(birthdayConfiguration))
-                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryCachedConfig>()
+                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryFromConfig<BirthdaysCacheMemory>>()
                 .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()

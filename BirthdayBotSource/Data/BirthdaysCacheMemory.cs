@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BirthdayBot.Data
 {
-    using UserId = String;
     using ServerId = String;
+    using UserId = String;
 
     /*
      * This abstract class implements cache storage of birthday data 
@@ -15,18 +15,18 @@ namespace BirthdayBot.Data
      * Various ways of loading initial data (from config, from database, etc.) 
      * and saving changed data are supplied by concrete classes derived from this one.
      */
-    public abstract class BirthdaysRepositoryCached : IBirthdaysRepositoryCached
+    public class BirthdaysCacheMemory : IBirthdaysCache // IBirthdaysRepositoryCached
     {
         // Since I will need to look up Users from Birthdays, which is a
         // many-to-one relation, List makes more sense than a Dictionary
         private List<Birthday> _birthdaysCache = new();
 
         // Separately stored list of User IDs for fast duplicate check
-        private HashSet<string> userIdsCache = new();
+        private HashSet<string> _userIdsCache = new();
 
-        private bool IsUserDuplicate(string userId)
+        private bool IsUserDuplicate(UserId userId)
         {
-            if (userIdsCache.Contains(userId))
+            if (_userIdsCache.Contains(userId))
                 return true;
             else
                 return false;
@@ -35,7 +35,7 @@ namespace BirthdayBot.Data
         protected void AddUserBirthdayInternalStorage(Birthday birthday)
         {
             _birthdaysCache.Add(birthday);
-            userIdsCache.Add(birthday.UserId);
+            _userIdsCache.Add(birthday.UserId);
         }
 
         public async Task AddUserBirthdayAsync(Birthday birthday)
@@ -45,7 +45,7 @@ namespace BirthdayBot.Data
             else
             {
                 AddUserBirthdayInternalStorage(birthday);
-                await SaveChangesAsync();
+                // await SaveToSourceAsync();
             }
         }
 
@@ -59,7 +59,7 @@ namespace BirthdayBot.Data
             // TBU
         }
 
-        public async Task<List<UserId>> LookupUsersByBirthday(DateTime birthdayDate, ServerId serverId = null)
+        public async Task<List<UserId>> LookupUsersByBirthdayAsync(DateTime birthdayDate, ServerId serverId = null)
         {
             List<UserId> users = _birthdaysCache
                 .Where(birthday => birthday.BirthdayDate.Date == birthdayDate.Date
@@ -69,9 +69,5 @@ namespace BirthdayBot.Data
 
             return users;
         }
-
-        public abstract Task LoadUserBirthdaysAsync(); // Loads data from original source into internal storage
-
-        public abstract Task SaveChangesAsync(); // Saves changes into the original source; Name / params subject to change
     }
 }
