@@ -20,14 +20,14 @@ namespace BirthdayBot.Data
         private T _birthdaysCache;
 
         private readonly IConfiguration _config;
-        private BirthdaysArray _deserializedBirthdaysJson;
+        private BirthdaysArray _deserializedBirthdays;
         private Stream _birthdaysJsonStream;
 
         public BirthdaysRepositoryFromJson(IConfiguration config, Stream birthdaysJsonStream)
         {
             _config = config;
             _birthdaysJsonStream = birthdaysJsonStream;
-            _deserializedBirthdaysJson = DeserialiseBirthdayConfig();
+            _deserializedBirthdays = DeserialiseBirthdayConfig();
 
             _birthdaysCache = new();
         }
@@ -41,13 +41,13 @@ namespace BirthdayBot.Data
         /// Serializes current content of birthdays array to Json and writes it to file
         /// 
         /// </summary>
-        private void WriteJsonToFile()
+        private void WriteBirthdaysToJsonFile()
         {
             _birthdaysJsonStream.SetLength(0); // Makes it so that Writer overrides the file instead of appending
 
             JsonSerializerOptions serializerOptions = new() { WriteIndented = true };
             StreamWriter streamWriter = new(_birthdaysJsonStream);
-            streamWriter.Write(JsonSerializer.Serialize<BirthdaysArray>(_deserializedBirthdaysJson, serializerOptions));
+            streamWriter.Write(JsonSerializer.Serialize<BirthdaysArray>(_deserializedBirthdays, serializerOptions));
             streamWriter.Flush();
         }
 
@@ -68,8 +68,8 @@ namespace BirthdayBot.Data
 
             // Current implementation: edit file every time the method is called
 
-            _deserializedBirthdaysJson.Birthdays.Add(birthday);
-            WriteJsonToFile();
+            _deserializedBirthdays.Birthdays.Add(birthday);
+            WriteBirthdaysToJsonFile();
 
             Console.WriteLine($"Added Birthday: {birthday.UserId} - {birthday.BirthdayDate.ToString()}");
         }
