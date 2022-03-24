@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BirthdayBot.Data
@@ -9,24 +11,67 @@ namespace BirthdayBot.Data
     using UserId = String;
 
     /// <summary>
-    /// Implements BirthdaysRepository loaded from configuration file
+    /// Implements BirthdaysRepository loaded from Json file
     /// with optional caching support.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BirthdaysRepositoryFromConfig<T> : IBirthdaysRepositoryCached where T : class, IBirthdaysCache, new()
+    public class BirthdaysRepositoryFromJson<T> : IBirthdaysRepositoryCached where T : class, IBirthdaysCache, new()
     {
         private T _birthdaysCache;
-        private readonly IConfiguration _config;
 
-        public BirthdaysRepositoryFromConfig(IConfiguration config)
+        private readonly IConfiguration _config;
+        private BirthdaysArray _deserializedBirthdaysJson;
+        private Stream _birthdaysJsonStream;
+
+        public BirthdaysRepositoryFromJson(IConfiguration config, Stream birthdaysJsonStream)
         {
             _config = config;
+            _birthdaysJsonStream = birthdaysJsonStream;
+            _deserializedBirthdaysJson = DeserialiseBirthdayConfig();
+
             _birthdaysCache = new();
+        }
+
+        private BirthdaysArray DeserialiseBirthdayConfig()
+        {
+            return JsonSerializer.Deserialize<BirthdaysArray>(new StreamReader(_birthdaysJsonStream).ReadToEnd());
+        }
+
+        /// <summary>
+        /// Serializes current content of birthdays array to Json and writes it to file
+        /// 
+        /// </summary>
+        private void WriteJsonToFile()
+        {
+            _birthdaysJsonStream.SetLength(0); // Makes it so that Writer overrides the file instead of appending
+
+            JsonSerializerOptions serializerOptions = new() { WriteIndented = true };
+            StreamWriter streamWriter = new(_birthdaysJsonStream);
+            streamWriter.Write(JsonSerializer.Serialize<BirthdaysArray>(_deserializedBirthdaysJson, serializerOptions));
+            streamWriter.Flush();
         }
 
         public async Task AddUserBirthdayAsync(Birthday birthday)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _birthdaysCache.AddUserBirthdayAsync(birthday);
+            }
+            catch (NotImplementedException)
+            {
+                // If this type of cache does not have Add implemented - skip painlessly
+            }
+
+            // Future implementation: have a cache of <operations>, bulk save to source every <time interval>
+            // SaveToSourceAsync() used for bulk save
+            // Perhaps, another Interface / class to implement the operations cache so it can be shared across different types of sources
+
+            // Current implementation: edit file every time the method is called
+
+            _deserializedBirthdaysJson.Birthdays.Add(birthday);
+            WriteJsonToFile();
+
+            Console.WriteLine($"Added Birthday: {birthday.UserId} - {birthday.BirthdayDate.ToString()}");
         }
 
         public async Task AdjustUserBirthdayAsync(Birthday birthday)

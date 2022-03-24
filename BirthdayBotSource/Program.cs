@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 /** 
@@ -106,11 +107,12 @@ namespace BirthdayBot
         {
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(GetConfig(_birthdaysPath))
+                .AddSingleton<Stream>(new FileStream(_birthdaysPath, FileMode.Open))
                 .AddOptions()
                     .Configure<ConnectionConfiguration>(connectionConfiguration => _config.Bind(connectionConfiguration))
                     .Configure<CommandsConfiguration>(commandsConfiguration => _config.Bind(commandsConfiguration))
                     .Configure<BirthdayConfiguration>(birthdayConfiguration => _config.Bind(birthdayConfiguration))
-                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryFromConfig<BirthdaysCacheMemory>>()
+                .AddSingleton<IBirthdaysRepository, BirthdaysRepositoryFromJson<BirthdaysCacheMemory>>()
                 .AddSingleton<DiscordRestClient>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<DiscordSocketConfig>()

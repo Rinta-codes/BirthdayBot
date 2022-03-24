@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BirthdayBotTest
 {
     [TestClass]
-    public class BirthdayRepositoryTest
+    public class BirthdaysRepositoryTest
     {
         /// <summary>
         /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
@@ -33,7 +33,7 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -74,7 +74,7 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -96,7 +96,7 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -124,7 +124,7 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromConfig<BirthdaysCacheMemory> birthdays = new(testConfig);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);

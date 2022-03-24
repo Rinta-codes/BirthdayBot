@@ -8,13 +8,9 @@ namespace BirthdayBot.Data
     using ServerId = String;
     using UserId = String;
 
-    /*
-     * This abstract class implements cache storage of birthday data 
-     * along with part of the interface that will have to interact with cache.
-     * 
-     * Various ways of loading initial data (from config, from database, etc.) 
-     * and saving changed data are supplied by concrete classes derived from this one.
-     */
+    /// <summary>
+    /// Implementation of IBirthdayCache where cache is stored in memory
+    /// </summary>
     public class BirthdaysCacheMemory : IBirthdaysCache // IBirthdaysRepositoryCached
     {
         // Since I will need to look up Users from Birthdays, which is a
