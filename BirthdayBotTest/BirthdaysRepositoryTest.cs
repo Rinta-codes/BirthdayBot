@@ -4,12 +4,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text.Json;
 
 namespace BirthdayBotTest
 {
     [TestClass]
     public class BirthdaysRepositoryTest
     {
+        public Stream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize<BirthdaysArray>(new BirthdaysArray(new List<Birthday>()))));
+            // new MemoryStream(System.Text.Encoding.UTF8.GetBytes("{\"Birthdays\":[]}"));
+
         /// <summary>
         /// Test for BirthdaysRepositoryCachedConfig.LookUpUserByBirthday()
         /// Input: Normal data; Unsorted; Single result expected; Expected result is not first entry
@@ -33,7 +38,7 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, stream);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -74,7 +79,7 @@ namespace BirthdayBotTest
             };
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, stream);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -96,7 +101,7 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, stream);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
@@ -124,7 +129,7 @@ namespace BirthdayBotTest
             List<string> expectedUsers = new() {};
 
             IConfiguration testConfig = new ConfigurationBuilder().AddInMemoryCollection(testData).Build();
-            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, null);
+            BirthdaysRepositoryFromJson<BirthdaysCacheMemory> birthdays = new(testConfig, stream);
             await birthdays.LoadFromSourceAsync();
 
             var actualUsers = await birthdays.LookupUsersByBirthdayAsync(date);
