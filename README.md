@@ -17,7 +17,7 @@ Implementation-wise, it showcases the following and more:
 - Manual data storage implementation ([IBirthdaysRepository / IBirthdaysCache](../../tree/master/BirthdayBotSource/Data))  
 - Reflection ([ActionHandlingService](../../tree/master/BirthdayBotSource/Services/ActionHandlingService.cs))
 - Expanded functionality over what the external library provides (scheduled / repeated bot actions via ActionHandlingService)  
-- Unit testing via MSTest ([BirthdayBotTest](../../tree/master/BirthdayBothTest))
+- Unit testing via MSTest ([BirthdayBotTest](../../tree/master/BirthdayBotTest))
 - Etc.  
   
 **Bot Commands**  
