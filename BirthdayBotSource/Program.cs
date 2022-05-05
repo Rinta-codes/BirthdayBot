@@ -3,6 +3,7 @@ using BirthdayBot.Data;
 using BirthdayBot.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
@@ -69,6 +70,7 @@ namespace BirthdayBot
             // Initialize CommandHandler and ActionHandler services
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
             await services.GetRequiredService<ActionHandlingService>().InitializeAsync();
+            await services.GetRequiredService<InteractionHandlingService>().InitializeAsync();
 
             await Task.Delay(-1);
 
@@ -128,6 +130,8 @@ namespace BirthdayBot
                 .AddSingleton<RestService>()
                 .AddSingleton<TimerFactory>()
                 .AddSingleton<ActionHandlingService>()
+                .AddSingleton<InteractionService>(services => new InteractionService(services.GetRequiredService<DiscordSocketClient>()))
+                .AddSingleton<InteractionHandlingService>()
                 .BuildServiceProvider();
         }
     }
