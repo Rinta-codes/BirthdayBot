@@ -1,4 +1,5 @@
-﻿using BirthdayBot.Configuration;
+﻿using BirthdayBot.ActionAttributes;
+using BirthdayBot.Configuration;
 using BirthdayBot.Data;
 using BirthdayBot.Services;
 using Discord;
@@ -14,7 +15,7 @@ namespace BirthdayBot.ActionModules
     /*
      * Stores Actions to be executed by Bot on its own
      */
-    public class ActionModule
+    public class ActionModule : IActionModule
     {
         private readonly IDiscordClient _client;
         private readonly RestService _myRest;
@@ -28,12 +29,17 @@ namespace BirthdayBot.ActionModules
             _birthdays = birthdays;
         }
 
-        /*
-         * Check if any of the birthdays are today.
-         * For all discovered birthdays:
-         *  - Assign Birthday Role to corresponding user in all applicable servers.
-         *  - Send a congratulatory message to a default channel of each applicable server.
-         */
+        /// <summary>
+        /// Action for automatic birthday checkup / assignment.
+        /// </summary>
+        /// <remarks>
+        /// Check if any of the birthdays are today.
+        /// <br/>For all discovered birthdays:
+        /// <br/> - Assign Birthday Role to corresponding user in all applicable servers.
+        /// <br/> - Send a congratulatory message to a default channel of each applicable server.
+        /// </remarks>
+        [RunAtStartup]
+        [Timer(Interval.SECOND * 5)]
         public async Task SetBirthdaysActionAsync()
         {
             Console.WriteLine("[SetBirthdaysAction] Execution has began.");
