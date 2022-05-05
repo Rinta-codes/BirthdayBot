@@ -15,13 +15,15 @@ Implementation-wise, it showcases the following and more:
 - Manual Factory implementation ([TimerFactory](BirthdayBotSource/Services/TimerFactory.cs))  
 - Manual Rest API use ([RestService](BirthdayBotSource/Services/RestService.cs))  
 - Manual data storage implementation ([IBirthdaysRepository / IBirthdaysCache](../../tree/master/BirthdayBotSource/Data))  
+- Reflection ([ActionHandlingService](../../tree/master/BirthdayBotSource/Services/ActionHandlingService.cs))
 - Expanded functionality over what the external library provides (scheduled / repeated bot actions via ActionHandlingService)  
+- Unit testing via MSTest ([BirthdayBotTest](../../tree/master/BirthdayBothTest))
 - Etc.  
   
 **Bot Commands**  
 *use "help" command to get most current list of commands*  
   
-Potentially outdated:  
+Text commands (potentially outdated):  
 *beep* - Simple interaction to test that the Bot is up  
 *good bot* - Be polite to your Bot  
 *thank you bot* - Say "thank you" to your Bot  
@@ -31,6 +33,9 @@ Potentially outdated:
 *guilduser_discordlib* - Get GuildUser via Discord.NET Rest client  
 *birthday_discordlib* - Assign birthday role to @mentioned user via Discord.NET Rest client  
 *help* - Lists available commands and their descriptions.  
+
+Slash commands:
+*/beep*
    
 **Configuration**  
   
